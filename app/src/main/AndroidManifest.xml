@@ -13,6 +13,16 @@
         android:theme="@style/Theme.Flagguessingandroidapplication"
         tools:targetApi="31">
         <activity
+            android:name=".GuessHint"
+            android:exported="false"
+            android:label="@string/title_activity_guess_hint"
+            android:theme="@style/Theme.Flagguessingandroidapplication" />
+        <activity
+            android:name=".GuessCountry"
+            android:exported="false"
+            android:label="@string/title_activity_guess_country"
+            android:theme="@style/Theme.Flagguessingandroidapplication" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
