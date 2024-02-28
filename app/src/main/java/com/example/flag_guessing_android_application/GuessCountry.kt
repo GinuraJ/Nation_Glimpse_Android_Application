@@ -82,6 +82,8 @@ class GuessCountry : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun GuessCountryScreenContent() {
+
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,6 +147,9 @@ class GuessCountry : ComponentActivity() {
 
         val openDialog = remember { mutableStateOf(false) }
 
+        var refreshCounter by remember { mutableStateOf(0) }
+
+
         val context = LocalContext.current
         val countryMap = remember { mutableMapOf<String, String>() }
         readJson(context, countryMap)
@@ -176,6 +181,7 @@ class GuessCountry : ComponentActivity() {
                                 chosedAnswer = key
 
                                 Log.i("","kkk $chosedAnswer $generatedImage")
+
 
                             },
                             modifier = Modifier
@@ -255,12 +261,18 @@ class GuessCountry : ComponentActivity() {
                 onClick = {
                     isPressed = !isPressed
                     if(generatedImage == chosedAnswer){
-                        Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
+                        if(isPressed){
+                            Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
+                        }
                         openDialog.value = !openDialog.value
-                    }else {
-                        Toast.makeText(context, "😪 Ooops ", Toast.LENGTH_SHORT).show()
+                    }else if(generatedImage != chosedAnswer) {
+                        if(isPressed){
+                            Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
+                        }
                         openDialog.value = !openDialog.value
                     }
+
+                    refreshCounter++
                           },
                 modifier = Modifier
                     .weight(1f)
@@ -274,6 +286,20 @@ class GuessCountry : ComponentActivity() {
                 Text(text = if (isPressed) "Next" else "Submit")
             }
 
+            if(refreshCounter > 1){
+                setContent {
+                    refreshCounter = 0
+                    FlagguessingandroidapplicationTheme {
+                        // A surface container using the 'background' color from the theme
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            GuessCountryScreenContent()
+                        }
+                    }
+                }
+            }
 
         }
     }
