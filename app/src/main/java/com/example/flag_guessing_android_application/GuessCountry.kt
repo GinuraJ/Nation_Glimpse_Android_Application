@@ -13,20 +13,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,11 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,12 +42,9 @@ import androidx.compose.ui.window.PopupProperties
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.util.Locale
-import java.util.Properties
-import kotlin.random.Random
+
 
 class GuessCountry : ComponentActivity() {
-
 
     var generatedImage = "ad"
     var generatedImageName = ""
@@ -117,16 +106,13 @@ class GuessCountry : ComponentActivity() {
                     .fillMaxSize()
                     .background(Color(204, 211, 202))
                     .padding(vertical = 8.dp)
-
             ) {
-
                 Column (
                     modifier = Modifier
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
                     RandomImage()
-
                 }
                 Column (
                     modifier = Modifier
@@ -134,9 +120,7 @@ class GuessCountry : ComponentActivity() {
                 ){
                     loadCountryList()
 //                    testing()
-
                 }
-
             }
         }
     }
@@ -156,8 +140,11 @@ class GuessCountry : ComponentActivity() {
 
         generatedImageName = countryMap[generatedImage.uppercase()].toString()
 
+        var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
+
 
         var isPressed by remember { mutableStateOf(false) }
+
 
         // Now, you can use the countryMap as needed in your Compose code
         // For example, you can print the content of the map
@@ -177,9 +164,15 @@ class GuessCountry : ComponentActivity() {
 
 
                         Button(
+
                             onClick = {
                                 chosedAnswer = key
-
+//                                buttonStates = buttonStates.toMutableMap().apply {
+//                                    this[key] = !this[key]!!
+//                                }
+                                buttonStates = buttonStates.mapValues { (btnKey, _) ->
+                                    btnKey == key
+                                }
                                 Log.i("","kkk $chosedAnswer $generatedImage")
 
 
@@ -189,8 +182,12 @@ class GuessCountry : ComponentActivity() {
 //                            .padding(8.dp),
                             shape = RoundedCornerShape(30),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(26, 93, 26)
+                                containerColor = if (buttonStates[key] == true) Color(37, 103, 126) else Color(26, 93, 26),
+//                                contentColor = Color.White
                             )
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = Color(26, 93, 26)
+//                            )
                         ) {
                             Text(text = value)
                         }
@@ -252,7 +249,6 @@ class GuessCountry : ComponentActivity() {
                             }
                         }
                     }
-
                 }
             }
 
