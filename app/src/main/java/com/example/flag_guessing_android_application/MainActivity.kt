@@ -101,7 +101,10 @@ class MainActivity : ComponentActivity() {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
-                            onClick = {},
+                            onClick = {
+                                val NavigateGuessHint = Intent(this@MainActivity,GuessTheFlag::class.java)
+                                startActivity(NavigateGuessHint)
+                            },
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)
@@ -110,7 +113,10 @@ class MainActivity : ComponentActivity() {
                             Text(text = "Guess the flag")
                         }
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                val NavigateGuessHint = Intent(this@MainActivity, AdvanceLevel::class.java)
+                                startActivity(NavigateGuessHint)
+                                      },
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)

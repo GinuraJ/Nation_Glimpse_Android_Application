@@ -167,9 +167,7 @@ class GuessCountry : ComponentActivity() {
 
                             onClick = {
                                 chosedAnswer = key
-//                                buttonStates = buttonStates.toMutableMap().apply {
-//                                    this[key] = !this[key]!!
-//                                }
+
                                 buttonStates = buttonStates.mapValues { (btnKey, _) ->
                                     btnKey == key
                                 }
@@ -183,7 +181,6 @@ class GuessCountry : ComponentActivity() {
                             shape = RoundedCornerShape(30),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (buttonStates[key] == true) Color(37, 103, 126) else Color(26, 93, 26),
-//                                contentColor = Color.White
                             )
 //                            colors = ButtonDefaults.buttonColors(
 //                                containerColor = Color(26, 93, 26)

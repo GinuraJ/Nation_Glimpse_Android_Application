@@ -2,4 +2,6 @@
     <string name="app_name">Flag-guessing-android-application</string>
     <string name="title_activity_guess_country">GuessCountry</string>
     <string name="title_activity_guess_hint">GuessHint</string>
+    <string name="title_activity_guess_the_flag">GuessTheFlag</string>
+    <string name="title_activity_advance_level">AdvanceLevel</string>
 </resources>

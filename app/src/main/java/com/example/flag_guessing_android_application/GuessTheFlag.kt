@@ -13,9 +13,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,22 +47,8 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 
-class GuessHint : ComponentActivity() {
+class GuessTheFlag : ComponentActivity() {
 
-    val mutableList: MutableList<String> = mutableListOf()
-
-
-    var generatedImageKey = ""
-    var generatedImageName = ""
-    var displayText = ""
-
-    var count = 1
-    var looseCount = 0
-    var chooseCorrect = 0
-
-    var countryNameGuessing = ""
-
-//    var winCount = 0
 
 
 
@@ -79,7 +67,7 @@ class GuessHint : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    GuessHintScreenContent()
+                    GuessTheFlagScreenContent()
                 }
             }
         }
@@ -87,7 +75,7 @@ class GuessHint : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun GuessHintScreenContent() {
+    fun GuessTheFlagScreenContent() {
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -101,7 +89,7 @@ class GuessHint : ComponentActivity() {
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            val NavigateGuessHint = Intent(this@GuessHint,MainActivity::class.java)
+                            val NavigateGuessHint = Intent(this@GuessTheFlag,MainActivity::class.java)
                             startActivity(NavigateGuessHint)
                         },
                     ) {
@@ -129,12 +117,11 @@ class GuessHint : ComponentActivity() {
                 ){
                     RandomImage()
                 }
-                Column (
-                    modifier = Modifier
-                        .weight(2f)
-                ){
-                    guessHint()
-                }
+//                Column (
+//                    modifier = Modifier
+//                        .weight(2f)
+//                ){
+//                }
             }
         }
     }
@@ -424,288 +411,203 @@ class GuessHint : ComponentActivity() {
         )
 
 
-        val randomDrawableId = drawableList.random()
+        val randomDrawableId1 = drawableList.random()
+        val randomDrawableId2 = drawableList.random()
+        val randomDrawableId3 = drawableList.random()
+
 
         // Get the name of the generated drawable resource using reflection
-        val drawableName: String = try {
-            val fieldName = context.resources.getResourceEntryName(randomDrawableId)
+        val drawableName1: String = try {
+            val fieldName = context.resources.getResourceEntryName(randomDrawableId1)
             "R.drawable.$fieldName"
         } catch (e: Resources.NotFoundException) {
             "Unknown"
         }
 
-        generatedImageKey = drawableName.substring(11).uppercase()
+        val drawableName2: String = try {
+            val fieldName = context.resources.getResourceEntryName(randomDrawableId2)
+            "R.drawable.$fieldName"
+        } catch (e: Resources.NotFoundException) {
+            "Unknown"
+        }
 
-        generatedImageName = countryMap[generatedImageKey.uppercase()].toString().uppercase()
+        val drawableName3: String = try {
+            val fieldName = context.resources.getResourceEntryName(randomDrawableId3)
+            "R.drawable.$fieldName"
+        } catch (e: Resources.NotFoundException) {
+            "Unknown"
+        }
 
-        if(count == 1){
-            for (index in generatedImageName.indices) {
-                val char = generatedImageName[index]
-                if (char == ' ') {
-                    mutableList.add("   ")
-                } else {
-                    mutableList.add(" _ ")
-                }
+        var generatedImageKey1 = drawableName1.substring(11).uppercase()
+        var generatedImageName1 = countryMap[generatedImageKey1.uppercase()].toString().uppercase()
+
+        var generatedImageKey2 = drawableName2.substring(11).uppercase()
+        var generatedImageName2 = countryMap[generatedImageKey2.uppercase()].toString().uppercase()
+
+        var generatedImageKey3 = drawableName3.substring(11).uppercase()
+        var generatedImageName3 = countryMap[generatedImageKey3.uppercase()].toString().uppercase()
+
+        var imageNameList = listOf(generatedImageName1,generatedImageName2,generatedImageName3)
+        val randomImageName = imageNameList.random()
+
+        var userSelectedFlagName = ""
+        var userAnswerIs by remember { mutableStateOf("") }
+
+        fun CheckTheAnswer(){
+            if(userSelectedFlagName == randomImageName){
+                Log.i("","oooo Win Win Win")
+                userAnswerIs = "Correct"
+            }else{
+                Log.i("","oooo Ooooopppss")
+                userAnswerIs = "Wrong"
             }
-            count++
         }
 
-        for (element in mutableList) {
-            displayText = displayText + " $element "
-        }
+        var ChosedTheAnswer = remember { mutableStateOf(false) }
 
-        countryNameGuessing = displayText
-        
-
-
+        var refreshCounter by remember { mutableStateOf(0) }
 
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+//                .height(200.dp)
+                .fillMaxHeight()
                 .clip(MaterialTheme.shapes.medium),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = randomDrawableId),
-//                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
-                contentDescription = "Country Flag",
-                contentScale = ContentScale.Crop
-            )
-
-        }
-
-    }
-
-    @Composable
-    fun guessHint() {
-        var isPressed by remember { mutableStateOf(false) }
-
-        var loseOrWin = remember { mutableStateOf(false) }
-
-//        if(count == 1){
-//            for (index in generatedImageName.indices) {
-//                val char = generatedImageName[index]
-//                if (char == ' ') {
-//                    mutableList.add("   ")
-//                } else {
-//                    mutableList.add(" _ ")
-//                }
-//            }
-//            count++
-//        }
-
-
-        var text by remember { mutableStateOf("") }
-
-//        var displayText = ""
-//        for (element in mutableList) {
-//            displayText = displayText + " $element "
-//        }
-
-//        var countryNameGuessing by remember { mutableStateOf(displayText) }
-        var refreshCounter by remember { mutableStateOf(0) }
-
-
-
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-        ) {
             Column(
                 modifier = Modifier
-                    .weight(5f)
-                    .padding(vertical = 8.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(2f)
-                        .background(Color.Blue)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+
+                        .weight(1f)
                 ) {
-
+                    Text(text = randomImageName)
                 }
+                Spacer(modifier = Modifier.height(10.dp))
 
-                if(!loseOrWin.value){
+                if(!ChosedTheAnswer.value){
                     Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .weight(1.5f)
-                            .background(Color.Gray)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
+                            .weight(1f)
+                            .border(width = 2.dp, color = Color.Black)
+                            .background(Color(17, 57, 70))
+                            .padding(10.dp)
+                            .clickable {
+                                ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                userSelectedFlagName = generatedImageName1
+                                CheckTheAnswer()
+                            }
                     ) {
-                        Column(
-                        ) {
-                            Text(text = generatedImageName)
-                            Text(text = countryNameGuessing)
-//                        Text(text = "$displayText")
-                        }
+                        Image(
+                            painter = painterResource(id = randomDrawableId1),
+                            contentDescription = "Country Flag",
+                            contentScale = ContentScale.Crop
+                        )
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                     Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .weight(1.5f)
-//                        .background(Color.Yellow)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
+                            .weight(1f)
+                            .border(width = 2.dp, color = Color.Black)
+                            .background(Color(17, 57, 70))
+                            .padding(10.dp)
+                            .clickable {
+                                ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                userSelectedFlagName = generatedImageName2
+                                CheckTheAnswer()
+                            }
                     ) {
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .fillMaxWidth(),
-                            value = text,
-                            onValueChange = { text = it },
-                            label = { Text("Enter guessing character here") },
+                        Image(
+                            painter = painterResource(id = randomDrawableId2),
+                            contentDescription = "Country Flag",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
+                            .border(width = 2.dp, color = Color.Black)
+                            .background(Color(17, 57, 70))
+                            .padding(10.dp)
+                            .clickable {
+                                ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                userSelectedFlagName = generatedImageName3
+                                CheckTheAnswer()
+                            }
+                    ) {
+                        Image(
+                            painter = painterResource(id = randomDrawableId3),
+                            contentDescription = "Country Flag",
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }else{
-                    var boxColor = Color(174, 214, 241)
-                    var textColour = Color(174, 214, 241)
-                    var correctOrWrongMsg = ""
-
-                    if(looseCount==3){
-                        textColour = Color(215, 0, 0)
-                        correctOrWrongMsg = "Wrong"
-                    }
-                    if(chooseCorrect == 1){
-                        textColour = Color(0, 215, 0)
-                        correctOrWrongMsg = "Correct"
-                    }
-
-
-                    Box(
+                    Column(
                         modifier = Modifier
                             .weight(3f)
-                            .background(Color.Gray)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ){
-
-//                        Column{
-//                            Text(
-//                                text = generatedImageName,
-//                            )
-//                            Text(
-//                                text = correctOrWrongMsg,
-//                                color = textColour
-//                            )
-//                        }
+                            .background(Color.Yellow)
+                            .fillMaxWidth()
+                    ) {
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .weight(5f)
                         ) {
-                            Text(
-                                text = correctOrWrongMsg,
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontSize = 20.sp,
-                                color = textColour,
-                                fontWeight = FontWeight.Bold
+                            Text(text = userAnswerIs)
+                        }
+                        Button(
+                            onClick = {
+                                ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                refreshCounter++
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(20),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(17, 57, 70)
                             )
-                            Text(
-                                text = generatedImageName,
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontSize = 20.sp,
-                                color = Color(36, 113, 163),
-                            )
+                        )
+                        {
+                            Text(text = "Next")
+                        }
+                    }
+                }
+
+                if(refreshCounter != 0){
+                    setContent {
+                        refreshCounter = 0
+                        FlagguessingandroidapplicationTheme {
+                            // A surface container using the 'background' color from the theme
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.background
+                            ) {
+                                GuessTheFlagScreenContent()
+                            }
                         }
                     }
                 }
             }
-            Button(
-                onClick = {
-                    var chosedCorrect = 0
-                    for (index in generatedImageName.indices) {
-
-                        val char = generatedImageName[index].toString()
-
-                        if (char == "${text.uppercase()}") {
-
-                            countryNameGuessing = "$char $text"
-
-                            mutableList[index] = char
-
-                            displayText = ""
-
-                            for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
-
-                                displayText = displayText + " ${mutableList[index]} "
-                            }
-
-                            countryNameGuessing = displayText
-
-                            chosedCorrect = 1
-                        }
-                    }
-                    if (chosedCorrect != 1){
-                        looseCount++
-                    }
-                    if(looseCount >= 3){
-                        loseOrWin.value = !loseOrWin.value
-                        isPressed = !isPressed
-                        refreshCounter++
-//                        mutableList.clear()
-                    }
-
-                    var emptyFound = 0
-                    for(element in mutableList){
-                        if(element == " _ "){
-                            emptyFound++
-                        }
-                    }
-                    if(emptyFound == 0){
-                        loseOrWin.value = !loseOrWin.value
-                        isPressed = !isPressed
-                        chooseCorrect = 1
-                        refreshCounter++
-//                        mutableList.clear()
-
-                    }
-
-                    if(refreshCounter > 1){
-                        mutableList.clear()
-                        count = 1
-                        looseCount = 0
-                        chooseCorrect = 0
-                        displayText = ""
-                        setContent {
-                            refreshCounter = 0
-
-                            FlagguessingandroidapplicationTheme {
-                                // A surface container using the 'background' color from the theme
-                                Surface(
-                                    modifier = Modifier.fillMaxSize(),
-                                    color = MaterialTheme.colorScheme.background
-                                ) {
-                                    GuessHintScreenContent()
-                                }
-                            }
-                        }
-                    }
-
-
-                    text = ""
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(20),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(17, 57, 70)
-                )
-            ) {
-                Text(text = if (isPressed) "Next" else "Submit")
-            }
-        }
-
-
-
-
 
         }
+
     }
+
+}
 
 
 

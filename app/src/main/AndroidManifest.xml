@@ -13,6 +13,16 @@
         android:theme="@style/Theme.Flagguessingandroidapplication"
         tools:targetApi="31">
         <activity
+            android:name=".AdvanceLevel"
+            android:exported="false"
+            android:label="@string/title_activity_advance_level"
+            android:theme="@style/Theme.Flagguessingandroidapplication" />
+        <activity
+            android:name=".GuessTheFlag"
+            android:exported="false"
+            android:label="@string/title_activity_guess_the_flag"
+            android:theme="@style/Theme.Flagguessingandroidapplication" />
+        <activity
             android:name=".GuessHint"
             android:exported="false"
             android:label="@string/title_activity_guess_hint"
