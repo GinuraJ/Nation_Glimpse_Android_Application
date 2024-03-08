@@ -467,7 +467,6 @@ class GuessTheFlag : ComponentActivity() {
 
         var refreshCounter by remember { mutableStateOf(0) }
 
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -485,10 +484,16 @@ class GuessTheFlag : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-
-                        .weight(1f)
+                        .background(Color(242,212,92),shape = RoundedCornerShape(10.dp))
+                        .border(2.dp, Color(24,21,9),shape = RoundedCornerShape(10.dp))
+                        .weight(0.5f),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(text = randomImageName)
+                    Text(
+                        text = randomImageName,
+                        color = Color(24,21,9),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 26.sp)
                 }
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -602,11 +607,8 @@ class GuessTheFlag : ComponentActivity() {
                     }
                 }
             }
-
         }
-
     }
-
 }
 
 

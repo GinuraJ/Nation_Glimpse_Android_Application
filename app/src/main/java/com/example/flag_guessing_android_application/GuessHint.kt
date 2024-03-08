@@ -16,6 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -124,6 +125,7 @@ class GuessHint : ComponentActivity() {
             ) {
                 Column (
                     modifier = Modifier
+                        .padding(horizontal = 10.dp)
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
@@ -455,27 +457,42 @@ class GuessHint : ComponentActivity() {
         }
 
         countryNameGuessing = displayText
-        
 
 
-
-
-        Column(
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(MaterialTheme.shapes.medium),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+                .fillMaxSize()
+                .border(width = 2.dp, color = Color.Black)
+                .background(Color(17, 57, 70))
+                .padding(10.dp)
+
+        ){
             Image(
                 painter = painterResource(id = randomDrawableId),
 //                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
                 contentDescription = "Country Flag",
                 contentScale = ContentScale.Crop
             )
-
         }
+
+
+
+//        Column(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .clip(MaterialTheme.shapes.medium),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            Image(
+//                painter = painterResource(id = randomDrawableId),
+//                contentDescription = "Country Flag",
+//                contentScale = ContentScale.Crop
+//            )
+//
+//        }
 
     }
 
@@ -512,35 +529,39 @@ class GuessHint : ComponentActivity() {
 
         Column(
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 10.dp)
         ) {
             Column(
                 modifier = Modifier
                     .weight(5f)
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 10.dp)
                     .fillMaxWidth(),
             ) {
                 Box(
                     modifier = Modifier
                         .weight(2f)
-                        .background(Color.Blue)
+//                        .background(Color.Blue)
+                        .border(5.dp, Color(5, 92, 157))
                         .fillMaxWidth(),
                 ) {
 
                 }
+                
+                Spacer(modifier = Modifier.height(10.dp))
 
                 if(!loseOrWin.value){
                     Box(
                         modifier = Modifier
                             .weight(1.5f)
-                            .background(Color.Gray)
+//                            .background(Color(255, 0, 124))
+                            .background(Color(136,225,241),shape = RoundedCornerShape(30))
                             .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
                         ) {
                             Text(text = generatedImageName)
-                            Text(text = countryNameGuessing)
+                            Text(text = countryNameGuessing, color = Color.Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
 //                        Text(text = "$displayText")
                         }
                     }

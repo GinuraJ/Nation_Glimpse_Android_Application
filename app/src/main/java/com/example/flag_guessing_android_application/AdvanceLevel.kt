@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -52,7 +53,6 @@ import kotlinx.serialization.json.Json
 
 class AdvanceLevel : ComponentActivity() {
 
-
     var generatedImageName1 = ""
     var generatedImageName2 = ""
     var generatedImageName3 = ""
@@ -60,6 +60,7 @@ class AdvanceLevel : ComponentActivity() {
     var randomDrawableId1 = 0
     var randomDrawableId2 = 0
     var randomDrawableId3 = 0
+
 
     var loseCount = 0
 
@@ -87,37 +88,15 @@ class AdvanceLevel : ComponentActivity() {
     @Composable
     fun AdvanceLevelScreenContent() {
 
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // TopAppBar for navigation
-            TopAppBar(
-                title = {
-                    Text(text = "Guess Country")
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            val NavigateGuessHint = Intent(this@AdvanceLevel,MainActivity::class.java)
-                            startActivity(NavigateGuessHint)
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    // Add additional actions here
-                },
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(204, 211, 202))
+                    .background(Color(243, 235, 221))
                     .padding(vertical = 8.dp)
             ) {
                 Column (
@@ -127,14 +106,10 @@ class AdvanceLevel : ComponentActivity() {
                 ){
                     RandomImage()
                 }
-//                Column (
-//                    modifier = Modifier
-//                        .weight(2f)
-//                ){
-//                }
             }
         }
     }
+
 
     fun readJson(context: Context, countryMap: MutableMap<String, String>) {
         // Read JSON from assets
@@ -473,8 +448,11 @@ class AdvanceLevel : ComponentActivity() {
 
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ttt(){
+
+        var marks by remember { mutableStateOf(0) }
 
         var isTextField1Enabled by remember { mutableStateOf(true) }
         var isTextField2Enabled by remember { mutableStateOf(true) }
@@ -498,6 +476,12 @@ class AdvanceLevel : ComponentActivity() {
         var refreshCounter by remember { mutableStateOf(0) }
 
         var result by remember { mutableStateOf("") }
+
+        val resultColor = if (result == "Wrong") {
+            Color.Red
+        } else{
+            Color.Green
+        }
 
         if(!submitted){
             textFeild1Colour = Color.Transparent
@@ -524,6 +508,37 @@ class AdvanceLevel : ComponentActivity() {
             }
         }
 
+//        Text(text = "$marks")
+
+        TopAppBar(
+            title = {
+                Text(text = "Guess Country")
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        val NavigateGuessHint = Intent(this@AdvanceLevel,MainActivity::class.java)
+                        startActivity(NavigateGuessHint)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = null
+                    )
+                }
+            },
+            actions = {
+                Text(
+                    text = "Score $marks",
+                    modifier = Modifier
+                        .padding(end = 16.dp) // Adjust the padding as needed
+                        .clickable {
+                            // Add any click behavior if needed
+                        }
+                )
+            },
+        )
+
         Column {
             if(!endGame){
                 Column(
@@ -541,7 +556,7 @@ class AdvanceLevel : ComponentActivity() {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .fillMaxSize()
+//                                .fillMaxSize()
                                 .weight(1f)
                                 .border(width = 2.dp, color = Color.Black)
                                 .background(Color(17, 57, 70))
@@ -582,7 +597,7 @@ class AdvanceLevel : ComponentActivity() {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .fillMaxSize()
+//                                .fillMaxSize()
                                 .weight(1f)
                                 .border(width = 2.dp, color = Color.Black)
                                 .background(Color(17, 57, 70))
@@ -621,7 +636,7 @@ class AdvanceLevel : ComponentActivity() {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .fillMaxSize()
+//                                .fillMaxSize()
                                 .weight(1f)
                                 .border(width = 2.dp, color = Color.Black)
                                 .background(Color(17, 57, 70))
@@ -669,75 +684,142 @@ class AdvanceLevel : ComponentActivity() {
                                 .fillMaxWidth()
                                 .border(
                                     3.dp,
-                                    Color(17, 57, 70),
-                                    shape = RoundedCornerShape(20)
+                                    Color(130, 117, 105),
+                                    shape = RoundedCornerShape(10.dp)
                                 )
-                                .background(Color(185, 206, 172), shape = RoundedCornerShape(10.dp)),
+                                .background(Color(186, 168, 150), shape = RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center,
                         ){
-                            Text(text = result)
+                            Text(text = result,color = resultColor,fontSize = 30.sp)
                         }
                         Spacer(modifier = Modifier.height(10.dp))
                         Column(
                             modifier = Modifier
                                 .weight(7f)
                                 .fillMaxWidth()
-                                .background(Color.White, shape = RoundedCornerShape(10.dp))
+                                .border(5.dp, Color(17, 57, 70))
+                                .background(Color(165, 195, 207), shape = RoundedCornerShape(10.dp))
                         ) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(0.5f)
+                                    .fillMaxHeight()
+                                    .fillMaxWidth()
+                                    .background(Color(17, 57, 70)),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Text(
+                                    text = "Result",
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+                            }
                             if(isTextField3Enabled){
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
-                                        .background(Color.Red, shape = RoundedCornerShape(10.dp))
+                                        .padding(horizontal = 10.dp)
+//                                        .background(Color.Red, shape = RoundedCornerShape(10.dp))
                                 ){
-                                    Column(){
-                                        Text(text = "First flag")
-                                        Text(text = textBox1)
-                                        Text(text = generatedImageName1)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight(),
+                                        verticalArrangement = Arrangement.SpaceEvenly
+                                    ){
+                                        Text(
+                                            text = "First flag",
+                                            modifier = Modifier
+                                                .background(Color(233, 151, 135))
+                                                .padding(5.dp)
+                                                .fillMaxWidth()
+                                        )
+                                        Divider(thickness = 1.dp, color = Color.Black)
+                                        Text(text = "Your answer: ${textBox1}")
+                                        Text(text = "Correct answer : ${generatedImageName1}")
                                     }
                                 }
                             }
                             if(isTextField2Enabled){
-                                Spacer(modifier = Modifier.height(10.dp))
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
-                                        .background(Color.Blue, shape = RoundedCornerShape(10.dp))
+                                        .padding(horizontal = 10.dp)
+//                                        .background(Color.Blue, shape = RoundedCornerShape(10.dp))
                                 ){
-                                    Column(){
-                                        Text(text = "Second flag")
-                                        Text(text = textBox2)
-                                        Text(text = generatedImageName2)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight(),
+                                        verticalArrangement = Arrangement.SpaceEvenly
+                                    ){
+                                        Text(
+                                            text = "Second flag",
+                                            modifier = Modifier
+                                                .background(Color(233, 151, 135))
+                                                .padding(5.dp)
+                                                .fillMaxWidth()
+                                        )
+                                        Divider(thickness = 1.dp, color = Color.Black)
+                                        Text(text = "Your answer: ${textBox2}")
+                                        Text(text = "Correct answer : ${generatedImageName2}")
                                     }
                                 }
                             }
                             if(isTextField3Enabled){
-                                Spacer(modifier = Modifier.height(10.dp))
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
-                                        .background(Color.Green, shape = RoundedCornerShape(10.dp))
+                                        .padding(horizontal = 10.dp)
+//                                        .background(Color.Green, shape = RoundedCornerShape(10.dp))
                                 ){
-                                    Column{
-                                        Text(text = "Third flag")
-                                        Text(text = textBox3)
-                                        Text(text = generatedImageName3)
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight(),
+                                        verticalArrangement = Arrangement.SpaceEvenly
+                                    ){
+                                        Text(
+                                            text = "Third flag",
+                                            modifier = Modifier
+                                                .background(Color(233, 151, 135))
+                                                .padding(5.dp)
+                                                .fillMaxWidth()
+                                        )
+                                        Divider(thickness = 1.dp, color = Color.Black)
+                                        Text(text = "Your answer: ${textBox3}")
+                                        Text(text = "Correct answer : ${generatedImageName3}")
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f)
-                                    .background(Color.Gray, shape = RoundedCornerShape(10.dp))
+                                    .padding(horizontal = 10.dp)
+//                                    .background(Color.Gray, shape = RoundedCornerShape(10.dp))
                             ){
-                                Column(){
-                                    Text(text = "Score")
-                                    Text(text = "score")
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight(),
+                                    verticalArrangement = Arrangement.SpaceEvenly
+                                ){
+                                    Divider(thickness = 1.dp, color = Color.Black)
+                                    Text(
+                                        text = "Score",
+                                        modifier = Modifier
+                                            .background(Color(233, 151, 135))
+                                            .padding(5.dp)
+                                            .fillMaxWidth()
+                                    )
+                                    Text(text = "$marks")
+//                                    Divider(thickness = 1.dp, color = Color.Black)
                                 }
                             }
 
@@ -757,9 +839,11 @@ class AdvanceLevel : ComponentActivity() {
                     onClick = {
                         submitted = true
 
+                        marks = 0
 
                         if(textBox1.uppercase() == generatedImageName1){
                             Log.i("","First flag answer is correct")
+                            marks++
                             isTextField1Enabled = false
                         }else{
                             Log.i("","First flag answer is wrong")
@@ -767,6 +851,7 @@ class AdvanceLevel : ComponentActivity() {
 
                         if(textBox2.uppercase() == generatedImageName2){
                             Log.i("","Second flag answer is correct")
+                            marks++
                             isTextField2Enabled = false
                         }else{
                             Log.i("","Second flag answer is wrong")
@@ -774,10 +859,16 @@ class AdvanceLevel : ComponentActivity() {
 
                         if(textBox3.uppercase() == generatedImageName3){
                             Log.i("","Third flag answer is correct")
+                            marks++
                             isTextField3Enabled = false
                         }else{
                             Log.i("","Third flag answer is wrong")
                         }
+
+
+                        Log.i("", "Marks $marks")
+
+
 
                         if(!isTextField1Enabled && !isTextField2Enabled && !isTextField3Enabled){
                             endGame = !endGame

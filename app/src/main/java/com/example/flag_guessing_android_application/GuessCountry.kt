@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -13,6 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,8 +52,13 @@ class GuessCountry : ComponentActivity() {
     var generatedImageName = ""
     var chosedAnswer = "Andorra"
 
+    var timeHaveToStart = mutableStateOf(true)
+
+    var isChecked = false
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
 
 
         super.onCreate(savedInstanceState)
@@ -63,6 +70,9 @@ class GuessCountry : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     GuessCountryScreenContent()
+
+
+
                 }
             }
         }
@@ -96,7 +106,10 @@ class GuessCountry : ComponentActivity() {
                     }
                 },
                 actions = {
-                    // Add additional actions here
+                    isChecked = intent.getBooleanExtra("Timer", false)
+                    Log.i("","www $isChecked")
+
+                    timer()
                 },
             )
 
@@ -109,6 +122,7 @@ class GuessCountry : ComponentActivity() {
             ) {
                 Column (
                     modifier = Modifier
+                        .padding(10.dp)
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
@@ -180,13 +194,13 @@ class GuessCountry : ComponentActivity() {
 //                            .padding(8.dp),
                             shape = RoundedCornerShape(30),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (buttonStates[key] == true) Color(37, 103, 126) else Color(26, 93, 26),
+                                containerColor = if (buttonStates[key] == true) Color(26, 93, 26) else Color(17,190,121),
                             )
 //                            colors = ButtonDefaults.buttonColors(
 //                                containerColor = Color(26, 93, 26)
 //                            )
                         ) {
-                            Text(text = value)
+                            Text(text = value, color = Color.Black, fontSize = 20.sp)
                         }
                     }
                 }
@@ -595,24 +609,39 @@ class GuessCountry : ComponentActivity() {
         generatedImage = drawableName.substring(11).uppercase()
 
 
-
-
-        Column(
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(MaterialTheme.shapes.medium),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+                .fillMaxSize()
+                .border(width = 2.dp, color = Color.Black)
+                .background(Color(17, 57, 70))
+                .padding(10.dp)
+
+        ){
             Image(
                 painter = painterResource(id = randomDrawableId),
 //                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
                 contentDescription = "Country Flag",
                 contentScale = ContentScale.Crop
             )
-
         }
+
+
+//        Column(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .clip(MaterialTheme.shapes.medium),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            Image(
+//                painter = painterResource(id = randomDrawableId),
+//                contentDescription = "Country Flag",
+//                contentScale = ContentScale.Crop
+//            )
+//
+//        }
 
     }
     
@@ -632,6 +661,43 @@ class GuessCountry : ComponentActivity() {
         val selectedImage = "ad.png" // Ensure no extra spaces
 
         Text(text = "$selectedImage")
+
+    }
+
+    @Composable
+    fun timer(){
+
+
+
+        var nums:Long by remember { mutableStateOf(10) }
+        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+        val cuntNum = object : CountDownTimer(10000,1000){
+            override fun onTick(millisUntilFinished: Long) {
+                nums = millisUntilFinished/1000
+                setVeiw = "$nums"
+            }
+
+            override fun onFinish() {
+                setVeiw = "Finished"
+            }
+        }
+
+
+        if(isChecked == true){
+            cuntNum.start()
+            isChecked = false
+        }
+
+        Text(
+            text = "$setVeiw",
+            modifier = Modifier
+                .padding(10.dp),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color =  Color(17, 57, 70)
+        )
+
+
 
     }
 
