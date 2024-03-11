@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -49,6 +50,16 @@ import kotlinx.serialization.json.Json
 
 class GuessTheFlag : ComponentActivity() {
 
+    var isChecked = false
+
+    var generatedDrawableID1 = 0
+    var generatedDrawableID2 = 0
+    var generatedDrawableID3 = 0
+    var randomImageName = ""
+    var generatedImageName1 = ""
+    var generatedImageName2 = ""
+    var generatedImageName3 = ""
+    var userSelectedFlagName = ""
 
 
 
@@ -61,6 +72,11 @@ class GuessTheFlag : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         setContent {
+
+            RandomImage()
+
+            isChecked = intent.getBooleanExtra("Timer",false)
+
             FlagguessingandroidapplicationTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -77,6 +93,40 @@ class GuessTheFlag : ComponentActivity() {
     @Composable
     fun GuessTheFlagScreenContent() {
 
+        var userAnswerIs by remember { mutableStateOf("") }
+
+        fun CheckTheAnswer(){
+            if(userSelectedFlagName == randomImageName){
+                Log.i("","oooo Win Win Win")
+                userAnswerIs = "Correct"
+            }else{
+                Log.i("","oooo Ooooopppss")
+                userAnswerIs = "Wrong"
+            }
+        }
+
+        var ChosedTheAnswer = remember { mutableStateOf(false) }
+
+        var refreshCounter by remember { mutableStateOf(0) }
+
+        var nums:Long by remember { mutableStateOf(10) }
+
+        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+
+        val cuntNum = object : CountDownTimer(11000,1000){
+
+            override fun onTick(millisUntilFinished: Long) {
+                nums = millisUntilFinished/1000
+                setVeiw = "$nums"
+            }
+
+            override fun onFinish() {
+                setVeiw = "Finished"
+                ChosedTheAnswer.value = true
+                userAnswerIs = "Time is up"
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,7 +134,7 @@ class GuessTheFlag : ComponentActivity() {
             // TopAppBar for navigation
             TopAppBar(
                 title = {
-                    Text(text = "Guess Country")
+                    Text(text = "Guess The Flag")
                 },
                 navigationIcon = {
                     IconButton(
@@ -100,7 +150,19 @@ class GuessTheFlag : ComponentActivity() {
                     }
                 },
                 actions = {
-                    // Add additional actions here
+                    if(isChecked == true){
+                        cuntNum.start()
+                        isChecked = false
+                    }
+
+                    Text(
+                        text = "$setVeiw",
+                        modifier = Modifier
+                            .padding(10.dp),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color =  Color(17, 57, 70)
+                    )
                 },
             )
 
@@ -115,13 +177,161 @@ class GuessTheFlag : ComponentActivity() {
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
-                    RandomImage()
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .clip(MaterialTheme.shapes.medium),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color(242,212,92),shape = RoundedCornerShape(10.dp))
+                                    .border(2.dp, Color(24,21,9),shape = RoundedCornerShape(10.dp))
+                                    .weight(0.5f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = randomImageName,
+                                    color = Color(24,21,9),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 26.sp)
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            if(!ChosedTheAnswer.value){
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f)
+                                        .border(width = 2.dp, color = Color.Black)
+                                        .background(Color(17, 57, 70))
+                                        .padding(10.dp)
+                                        .clickable {
+                                            ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                            userSelectedFlagName = generatedImageName1
+                                            CheckTheAnswer()
+                                            cuntNum.cancel()
+                                            setVeiw = "Finished"
+                                        }
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = generatedDrawableID1),
+                                        contentDescription = "Country Flag",
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f)
+                                        .border(width = 2.dp, color = Color.Black)
+                                        .background(Color(17, 57, 70))
+                                        .padding(10.dp)
+                                        .clickable {
+                                            ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                            userSelectedFlagName = generatedImageName2
+                                            CheckTheAnswer()
+                                            cuntNum.cancel()
+                                            setVeiw = "Finished"
+                                        }
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = generatedDrawableID2),
+                                        contentDescription = "Country Flag",
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f)
+                                        .border(width = 2.dp, color = Color.Black)
+                                        .background(Color(17, 57, 70))
+                                        .padding(10.dp)
+                                        .clickable {
+                                            ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                            userSelectedFlagName = generatedImageName3
+                                            CheckTheAnswer()
+                                            cuntNum.cancel()
+                                            setVeiw = "Finished"
+                                        }
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = generatedDrawableID3),
+                                        contentDescription = "Country Flag",
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }else{
+                                Column(
+                                    modifier = Modifier
+                                        .weight(3f)
+                                        .background(Color.Yellow)
+                                        .fillMaxWidth()
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(5f)
+                                    ) {
+                                        Text(text = userAnswerIs)
+                                    }
+                                    Button(
+                                        onClick = {
+                                            ChosedTheAnswer.value = !ChosedTheAnswer.value
+                                            refreshCounter++
+                                        },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxWidth(),
+                                        shape = RoundedCornerShape(20),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(17, 57, 70)
+                                        )
+                                    )
+                                    {
+                                        Text(text = "Next")
+                                    }
+                                }
+                            }
+
+                            if(refreshCounter != 0){
+
+                                setContent {
+
+                                    RandomImage()
+
+                                    refreshCounter = 0
+
+                                    isChecked = intent.getBooleanExtra("Timer",false)
+
+                                    FlagguessingandroidapplicationTheme {
+                                        // A surface container using the 'background' color from the theme
+                                        Surface(
+                                            modifier = Modifier.fillMaxSize(),
+                                            color = MaterialTheme.colorScheme.background
+                                        ) {
+                                            GuessTheFlagScreenContent()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-//                Column (
-//                    modifier = Modifier
-//                        .weight(2f)
-//                ){
-//                }
             }
         }
     }
@@ -412,8 +622,13 @@ class GuessTheFlag : ComponentActivity() {
 
 
         val randomDrawableId1 = drawableList.random()
+        generatedDrawableID1 = randomDrawableId1
+
         val randomDrawableId2 = drawableList.random()
+        generatedDrawableID2 = randomDrawableId2
+
         val randomDrawableId3 = drawableList.random()
+        generatedDrawableID3 = randomDrawableId3
 
 
         // Get the name of the generated drawable resource using reflection
@@ -439,175 +654,17 @@ class GuessTheFlag : ComponentActivity() {
         }
 
         var generatedImageKey1 = drawableName1.substring(11).uppercase()
-        var generatedImageName1 = countryMap[generatedImageKey1.uppercase()].toString().uppercase()
+        generatedImageName1 = countryMap[generatedImageKey1.uppercase()].toString().uppercase()
 
         var generatedImageKey2 = drawableName2.substring(11).uppercase()
-        var generatedImageName2 = countryMap[generatedImageKey2.uppercase()].toString().uppercase()
+        generatedImageName2 = countryMap[generatedImageKey2.uppercase()].toString().uppercase()
 
         var generatedImageKey3 = drawableName3.substring(11).uppercase()
-        var generatedImageName3 = countryMap[generatedImageKey3.uppercase()].toString().uppercase()
+        generatedImageName3 = countryMap[generatedImageKey3.uppercase()].toString().uppercase()
 
         var imageNameList = listOf(generatedImageName1,generatedImageName2,generatedImageName3)
-        val randomImageName = imageNameList.random()
+        randomImageName = imageNameList.random()
 
-        var userSelectedFlagName = ""
-        var userAnswerIs by remember { mutableStateOf("") }
-
-        fun CheckTheAnswer(){
-            if(userSelectedFlagName == randomImageName){
-                Log.i("","oooo Win Win Win")
-                userAnswerIs = "Correct"
-            }else{
-                Log.i("","oooo Ooooopppss")
-                userAnswerIs = "Wrong"
-            }
-        }
-
-        var ChosedTheAnswer = remember { mutableStateOf(false) }
-
-        var refreshCounter by remember { mutableStateOf(0) }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-//                .height(200.dp)
-                .fillMaxHeight()
-                .clip(MaterialTheme.shapes.medium),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(242,212,92),shape = RoundedCornerShape(10.dp))
-                        .border(2.dp, Color(24,21,9),shape = RoundedCornerShape(10.dp))
-                        .weight(0.5f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = randomImageName,
-                        color = Color(24,21,9),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 26.sp)
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-
-                if(!ChosedTheAnswer.value){
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                            .border(width = 2.dp, color = Color.Black)
-                            .background(Color(17, 57, 70))
-                            .padding(10.dp)
-                            .clickable {
-                                ChosedTheAnswer.value = !ChosedTheAnswer.value
-                                userSelectedFlagName = generatedImageName1
-                                CheckTheAnswer()
-                            }
-                    ) {
-                        Image(
-                            painter = painterResource(id = randomDrawableId1),
-                            contentDescription = "Country Flag",
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                            .border(width = 2.dp, color = Color.Black)
-                            .background(Color(17, 57, 70))
-                            .padding(10.dp)
-                            .clickable {
-                                ChosedTheAnswer.value = !ChosedTheAnswer.value
-                                userSelectedFlagName = generatedImageName2
-                                CheckTheAnswer()
-                            }
-                    ) {
-                        Image(
-                            painter = painterResource(id = randomDrawableId2),
-                            contentDescription = "Country Flag",
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                            .border(width = 2.dp, color = Color.Black)
-                            .background(Color(17, 57, 70))
-                            .padding(10.dp)
-                            .clickable {
-                                ChosedTheAnswer.value = !ChosedTheAnswer.value
-                                userSelectedFlagName = generatedImageName3
-                                CheckTheAnswer()
-                            }
-                    ) {
-                        Image(
-                            painter = painterResource(id = randomDrawableId3),
-                            contentDescription = "Country Flag",
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }else{
-                    Column(
-                        modifier = Modifier
-                            .weight(3f)
-                            .background(Color.Yellow)
-                            .fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(5f)
-                        ) {
-                            Text(text = userAnswerIs)
-                        }
-                        Button(
-                            onClick = {
-                                ChosedTheAnswer.value = !ChosedTheAnswer.value
-                                refreshCounter++
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(20),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(17, 57, 70)
-                            )
-                        )
-                        {
-                            Text(text = "Next")
-                        }
-                    }
-                }
-
-                if(refreshCounter != 0){
-                    setContent {
-                        refreshCounter = 0
-                        FlagguessingandroidapplicationTheme {
-                            // A surface container using the 'background' color from the theme
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                GuessTheFlagScreenContent()
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 

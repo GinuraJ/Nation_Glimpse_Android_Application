@@ -2,6 +2,7 @@ package com.example.flag_guessing_android_application
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,19 +41,22 @@ import androidx.compose.ui.unit.dp
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
 
 class MainActivity : ComponentActivity() {
+
+    var isCheckedMain = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
         setContent {
 
-            var isChecked by remember { mutableStateOf(false) }
-
+            var isChecked by remember { mutableStateOf(isCheckedMain) }
 
             Column(
                 modifier = Modifier
                     .background(Color.Yellow)
                     .fillMaxSize()
                     .fillMaxWidth(),
-//                verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(
@@ -77,10 +81,10 @@ class MainActivity : ComponentActivity() {
                             checked = isChecked,
                             onCheckedChange = { newCheckedState ->
                                 isChecked = newCheckedState
+                                isCheckedMain = !isCheckedMain
                                 // Handle the new state as needed
                             },
                             colors = SwitchDefaults.colors(
-//                                checkedThumbColor = Color(12, 45, 72),
                                 checkedThumbColor = Color.White,
                                 uncheckedThumbColor = Color.Black
                             ),
@@ -92,16 +96,17 @@ class MainActivity : ComponentActivity() {
                         .weight(1f)
                         .background(Color(12, 45, 72))
                         .fillMaxWidth(),
-//                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.Center
 
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .weight(1f)
+                            .padding(vertical = 4.dp)
                             .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Bottom
                     ) {
                         Button(
                             onClick = {
@@ -112,7 +117,7 @@ class MainActivity : ComponentActivity() {
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(100.dp),
+                                .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(17,190,121)
                             )
@@ -123,12 +128,13 @@ class MainActivity : ComponentActivity() {
                         Button(
                             onClick = {
                                 val NavigateGuessHint = Intent(this@MainActivity,GuessHint::class.java)
+                                NavigateGuessHint.putExtra("Timer",isChecked)
                                 startActivity(NavigateGuessHint)
                             },
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(100.dp),
+                                .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(136,225,241)
                             )
@@ -139,18 +145,23 @@ class MainActivity : ComponentActivity() {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .weight(1f)
+                            .padding(vertical = 4.dp)
                             .padding(horizontal = 8.dp), // Set 8dp padding for left and right borders
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Top
+
                     ) {
                         Button(
                             onClick = {
-                                val NavigateGuessHint = Intent(this@MainActivity,GuessTheFlag::class.java)
-                                startActivity(NavigateGuessHint)
+                                val NavigateGuessTheFlag = Intent(this@MainActivity,GuessTheFlag::class.java)
+                                NavigateGuessTheFlag.putExtra("Timer",isChecked)
+                                startActivity(NavigateGuessTheFlag)
                             },
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(100.dp),
+                                .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(242,212,92)
                             )
@@ -166,7 +177,7 @@ class MainActivity : ComponentActivity() {
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(100.dp),
+                                .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(160, 32, 240)
                             )
@@ -192,20 +203,16 @@ class MainActivity : ComponentActivity() {
 
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FlagguessingandroidapplicationTheme {
-        Greeting("Android")
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isCheckedMain", isCheckedMain)
     }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        isCheckedMain = savedInstanceState.getBoolean("isCheckedMain",false)
+
+    }
+
 }

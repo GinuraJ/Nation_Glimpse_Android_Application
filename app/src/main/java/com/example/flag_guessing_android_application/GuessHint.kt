@@ -1,13 +1,10 @@
 package com.example.flag_guessing_android_application
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import android.os.CountDownTimer
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -17,12 +14,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,17 +25,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -50,30 +41,37 @@ class GuessHint : ComponentActivity() {
 
     val mutableList: MutableList<String> = mutableListOf()
 
-
     var generatedImageKey = ""
+
     var generatedImageName = ""
+
     var displayText = ""
 
     var count = 1
+
     var looseCount = 0
+
     var chooseCorrect = 0
 
     var countryNameGuessing = ""
 
-//    var winCount = 0
+    var isChecked = false
 
-
+    var generatedImageDrawableId = 0
 
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
-
-
         super.onCreate(savedInstanceState)
+        
         setContent {
+
+            RandomImageProcess()
+
+            isChecked = intent.getBooleanExtra("Timer",false)
+
+
             FlagguessingandroidapplicationTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -90,6 +88,109 @@ class GuessHint : ComponentActivity() {
     @Composable
     fun GuessHintScreenContent() {
 
+        var isPressed by remember { mutableStateOf(false) }
+
+        var loseOrWin = remember { mutableStateOf(false) }
+
+        var text by remember { mutableStateOf("") }
+
+        var refreshCounter by remember { mutableStateOf(0) }
+
+        var nums:Long by remember { mutableStateOf(10) }
+
+        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+
+        val cuntNum = object : CountDownTimer(11000,1000){
+
+            override fun onTick(millisUntilFinished: Long) {
+                nums = millisUntilFinished/1000
+                setVeiw = "$nums"
+            }
+
+            override fun onFinish() {
+
+                setVeiw = "Finished"
+
+                var chosedCorrect = 0
+
+                for (index in generatedImageName.indices) {
+
+                    val char = generatedImageName[index].toString()
+
+                    if (char == text.uppercase()) {
+
+                        countryNameGuessing = "$char $text"
+
+                        mutableList[index] = char
+
+                        displayText = ""
+
+                        for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
+
+                            displayText = displayText + " ${mutableList[index]} "
+                        }
+
+                        countryNameGuessing = displayText
+
+                        chosedCorrect = 1
+                    }
+                }
+
+                looseCount = 3
+
+                if(looseCount >= 3){
+                    loseOrWin.value = !loseOrWin.value
+                    isPressed = !isPressed
+                    refreshCounter++
+//                        mutableList.clear()
+                }
+
+                var emptyFound = 0
+                for(element in mutableList){
+                    if(element == " _ "){
+                        emptyFound++
+                    }
+                }
+                if(emptyFound == 0){
+                    loseOrWin.value = !loseOrWin.value
+                    isPressed = !isPressed
+                    chooseCorrect = 1
+                    refreshCounter++
+//                        mutableList.clear()
+
+                }
+
+                if(refreshCounter > 1){
+                    mutableList.clear()
+                    count = 1
+                    looseCount = 0
+                    chooseCorrect = 0
+                    displayText = ""
+
+                    setContent {
+                        RandomImageProcess()
+
+                        refreshCounter = 0
+                        isChecked = intent.getBooleanExtra("Timer",false)
+
+                        FlagguessingandroidapplicationTheme {
+                            // A surface container using the 'background' color from the theme
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.background
+                            ) {
+                                GuessHintScreenContent()
+                            }
+                        }
+                    }
+                }
+
+
+                text = ""
+
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,7 +198,7 @@ class GuessHint : ComponentActivity() {
             // TopAppBar for navigation
             TopAppBar(
                 title = {
-                    Text(text = "Guess Country")
+                    Text(text = "Guess Hint")
                 },
                 navigationIcon = {
                     IconButton(
@@ -113,7 +214,23 @@ class GuessHint : ComponentActivity() {
                     }
                 },
                 actions = {
-                    // Add additional actions here
+
+
+                    if(isChecked == true){
+                        cuntNum.start()
+                        isChecked = false
+                    }
+
+
+
+                    Text(
+                        text = "$setVeiw",
+                        modifier = Modifier
+                            .padding(10.dp),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color =  Color(17, 57, 70)
+                    )
                 },
             )
 
@@ -129,13 +246,227 @@ class GuessHint : ComponentActivity() {
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
-                    RandomImage()
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .border(width = 2.dp, color = Color.Black)
+                            .background(Color(17, 57, 70))
+                            .padding(10.dp)
+
+                    ){
+                        Image(
+                            painter = painterResource(id = generatedImageDrawableId),
+//                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
+                            contentDescription = "Country Flag",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
                 Column (
                     modifier = Modifier
                         .weight(2f)
                 ){
-                    guessHint()
+//                    guessHint()
+
+
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(5f)
+                                .padding(vertical = 10.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(2f)
+//                        .background(Color.Blue)
+                                    .border(5.dp, Color(5, 92, 157))
+                                    .fillMaxWidth(),
+                            ) {
+
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            if(!loseOrWin.value){
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1.5f)
+//                            .background(Color(255, 0, 124))
+                                        .background(Color(136,225,241),shape = RoundedCornerShape(30))
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(
+                                    ) {
+                                        Text(text = generatedImageName)
+                                        Text(text = countryNameGuessing, color = Color.Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+//                        Text(text = "$displayText")
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1.5f)
+//                        .background(Color.Yellow)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .padding(horizontal = 8.dp)
+                                            .fillMaxWidth(),
+                                        value = text,
+                                        onValueChange = { text = it },
+                                        label = { Text("Enter guessing character here") },
+                                    )
+                                }
+                            }else{
+                                var boxColor = Color(174, 214, 241)
+                                var textColour = Color(174, 214, 241)
+                                var correctOrWrongMsg = ""
+
+                                if(looseCount==3){
+                                    textColour = Color(215, 0, 0)
+                                    correctOrWrongMsg = "Wrong"
+                                }
+                                if(chooseCorrect == 1){
+                                    textColour = Color(0, 215, 0)
+                                    correctOrWrongMsg = "Correct"
+                                }
+
+
+                                Box(
+                                    modifier = Modifier
+                                        .weight(3f)
+                                        .background(Color.Gray)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ){
+
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Text(
+                                            text = correctOrWrongMsg,
+                                            modifier = Modifier.padding(vertical = 10.dp),
+                                            fontSize = 20.sp,
+                                            color = textColour,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = generatedImageName,
+                                            modifier = Modifier.padding(vertical = 10.dp),
+                                            fontSize = 20.sp,
+                                            color = Color(36, 113, 163),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Button(
+                            onClick = {
+                                var chosedCorrect = 0
+                                for (index in generatedImageName.indices) {
+
+                                    val char = generatedImageName[index].toString()
+
+                                    if (char == "${text.uppercase()}") {
+
+                                        countryNameGuessing = "$char $text"
+
+                                        mutableList[index] = char
+
+                                        displayText = ""
+
+                                        for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
+
+                                            displayText = displayText + " ${mutableList[index]} "
+                                        }
+
+                                        countryNameGuessing = displayText
+
+                                        chosedCorrect = 1
+                                    }
+                                }
+                                if (chosedCorrect != 1){
+                                    looseCount++
+                                }
+                                if(looseCount >= 3){
+                                    loseOrWin.value = !loseOrWin.value
+                                    isPressed = !isPressed
+                                    refreshCounter++
+                                    cuntNum.cancel()
+                                    if(!isChecked){
+                                        setVeiw = "Lose"
+                                    }
+//                        mutableList.clear()
+                                }
+
+                                var emptyFound = 0
+                                for(element in mutableList){
+                                    if(element == " _ "){
+                                        emptyFound++
+                                    }
+                                }
+                                if(emptyFound == 0){
+                                    loseOrWin.value = !loseOrWin.value
+                                    isPressed = !isPressed
+                                    chooseCorrect = 1
+                                    refreshCounter++
+                                    cuntNum.cancel()
+                                    if(isChecked){
+                                        setVeiw = "Winner"
+                                    }
+//                        mutableList.clear()
+
+                                }
+
+                                if(refreshCounter > 1){
+                                    mutableList.clear()
+                                    count = 1
+                                    looseCount = 0
+                                    chooseCorrect = 0
+                                    displayText = ""
+
+                                    setContent {
+                                        RandomImageProcess()
+
+                                        isChecked = intent.getBooleanExtra("Timer",false)
+
+                                        refreshCounter = 0
+
+                                        FlagguessingandroidapplicationTheme {
+                                            // A surface container using the 'background' color from the theme
+                                            Surface(
+                                                modifier = Modifier.fillMaxSize(),
+                                                color = MaterialTheme.colorScheme.background
+                                            ) {
+                                                GuessHintScreenContent()
+                                            }
+                                        }
+                                    }
+                                }
+
+
+                                text = ""
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(20),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(17, 57, 70)
+                            )
+                        ) {
+                            Text(text = if (isPressed) "Next" else "Submit")
+                        }
+                    }
                 }
             }
         }
@@ -159,7 +490,7 @@ class GuessHint : ComponentActivity() {
     }
 
     @Composable
-    fun RandomImage() {
+    fun RandomImageProcess() {
 
 
         val context = LocalContext.current
@@ -428,6 +759,8 @@ class GuessHint : ComponentActivity() {
 
         val randomDrawableId = drawableList.random()
 
+        generatedImageDrawableId = randomDrawableId
+
         // Get the name of the generated drawable resource using reflection
         val drawableName: String = try {
             val fieldName = context.resources.getResourceEntryName(randomDrawableId)
@@ -459,22 +792,22 @@ class GuessHint : ComponentActivity() {
         countryNameGuessing = displayText
 
 
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .border(width = 2.dp, color = Color.Black)
-                .background(Color(17, 57, 70))
-                .padding(10.dp)
-
-        ){
-            Image(
-                painter = painterResource(id = randomDrawableId),
-//                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
-                contentDescription = "Country Flag",
-                contentScale = ContentScale.Crop
-            )
-        }
+//        Box(
+//            contentAlignment = Alignment.Center,
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .border(width = 2.dp, color = Color.Black)
+//                .background(Color(17, 57, 70))
+//                .padding(10.dp)
+//
+//        ){
+//            Image(
+//                painter = painterResource(id = generatedImageDrawableId),
+////                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
+//                contentDescription = "Country Flag",
+//                contentScale = ContentScale.Crop
+//            )
+//        }
 
 
 
@@ -498,34 +831,14 @@ class GuessHint : ComponentActivity() {
 
     @Composable
     fun guessHint() {
+
         var isPressed by remember { mutableStateOf(false) }
 
         var loseOrWin = remember { mutableStateOf(false) }
 
-//        if(count == 1){
-//            for (index in generatedImageName.indices) {
-//                val char = generatedImageName[index]
-//                if (char == ' ') {
-//                    mutableList.add("   ")
-//                } else {
-//                    mutableList.add(" _ ")
-//                }
-//            }
-//            count++
-//        }
-
-
         var text by remember { mutableStateOf("") }
 
-//        var displayText = ""
-//        for (element in mutableList) {
-//            displayText = displayText + " $element "
-//        }
-
-//        var countryNameGuessing by remember { mutableStateOf(displayText) }
         var refreshCounter by remember { mutableStateOf(0) }
-
-
 
         Column(
             modifier = Modifier
@@ -604,15 +917,6 @@ class GuessHint : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ){
 
-//                        Column{
-//                            Text(
-//                                text = generatedImageName,
-//                            )
-//                            Text(
-//                                text = correctOrWrongMsg,
-//                                color = textColour
-//                            )
-//                        }
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -691,6 +995,7 @@ class GuessHint : ComponentActivity() {
                         looseCount = 0
                         chooseCorrect = 0
                         displayText = ""
+
                         setContent {
                             refreshCounter = 0
 
@@ -720,11 +1025,6 @@ class GuessHint : ComponentActivity() {
                 Text(text = if (isPressed) "Next" else "Submit")
             }
         }
-
-
-
-
-
         }
     }
 

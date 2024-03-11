@@ -1,12 +1,11 @@
 package com.example.flag_guessing_android_application
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -14,14 +13,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +28,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,20 +45,38 @@ import kotlinx.serialization.json.Json
 class GuessCountry : ComponentActivity() {
 
     var generatedImage = "ad"
+
     var generatedImageName = ""
+
     var chosedAnswer = "Andorra"
 
-    var timeHaveToStart = mutableStateOf(true)
-
     var isChecked = false
+
+    var generatedImageID = 0
+
+    var orientation = false
+
+    var openBoxMain = false
+
+    var isPressedMain = false
+
+    var refreshCounter = 0
+    
+    var numCount:Long = 11000
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
-
         super.onCreate(savedInstanceState)
+
         setContent {
+
+            isChecked = intent.getBooleanExtra("Timer",false)
+
+            if(!orientation){
+                randomProcess()
+            }
+
             FlagguessingandroidapplicationTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -70,17 +84,96 @@ class GuessCountry : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     GuessCountryScreenContent()
-
-
-
                 }
             }
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("generatedImage",generatedImage)
+        outState.putString("generatedImageName",generatedImageName)
+        outState.putString("chosedAnswer",chosedAnswer)
+        outState.putBoolean("isChecked",isChecked)
+        outState.putInt("generatedImageID",generatedImageID)
+        outState.putBoolean("orientation", true)
+        outState.putBoolean("openBoxMain", openBoxMain)
+        outState.putInt("refreshCounter",refreshCounter)
+        outState.putBoolean("isPressedMain", isPressedMain)
+        outState.putLong("numCount",numCount)
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        generatedImage = savedInstanceState.getString("generatedImage","")
+        generatedImageName = savedInstanceState.getString("generatedImageName","")
+        chosedAnswer = savedInstanceState.getString("chosedAnswer","")
+        isChecked = savedInstanceState.getBoolean("isChecked",false)
+        generatedImageID = savedInstanceState.getInt("generatedImageID",0)
+        orientation = savedInstanceState.getBoolean("orientation",false)
+        openBoxMain = savedInstanceState.getBoolean("openBoxMain",false)
+        isPressedMain = savedInstanceState.getBoolean("isPressedMain",false)
+        refreshCounter = savedInstanceState.getInt("refreshCounter",refreshCounter)
+        numCount = savedInstanceState.getLong("numCount",11000)
+        
+    }
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun GuessCountryScreenContent() {
+
+        val openDialog = remember { mutableStateOf(openBoxMain) }
+
+        val context = LocalContext.current
+
+        val countryMap = remember { mutableMapOf<String, String>() }
+        readJson(context, countryMap)
+
+        generatedImageName = countryMap[generatedImage.uppercase()].toString()
+
+        var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
+
+        var isPressed by remember { mutableStateOf(isPressedMain) }
+
+        Log.i("","www $isChecked")
+
+        var nums:Long by remember { mutableStateOf(10) }
+
+        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+
+        val cuntNum = object : CountDownTimer(numCount,1000){
+
+            override fun onTick(millisUntilFinished: Long) {
+                nums = millisUntilFinished/1000
+                setVeiw = "$nums"
+                numCount = nums*1000
+            }
+
+            override fun onFinish() {
+                setVeiw = "Finished"
+
+                if(isPressed){
+                    isChecked = false
+                }else{
+                    isPressed = !isPressed
+                    if(generatedImage == chosedAnswer){
+//                        if(isPressed){
+//                            Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
+//                        }
+                        openDialog.value = !openDialog.value
+                    }else if(generatedImage != chosedAnswer) {
+//                        if(isPressed){
+//                            Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
+//                        }
+                        openDialog.value = !openDialog.value
+                    }
+
+                    refreshCounter++
+                }
+
+
+            }
+        }
 
 
         Column(
@@ -96,6 +189,7 @@ class GuessCountry : ComponentActivity() {
                     IconButton(
                         onClick = {
                             val NavigateGuessHint = Intent(this@GuessCountry,MainActivity::class.java)
+                            NavigateGuessHint.putExtra("Timer",isChecked)
                             startActivity(NavigateGuessHint)
                         },
                     ) {
@@ -106,14 +200,23 @@ class GuessCountry : ComponentActivity() {
                     }
                 },
                 actions = {
-                    isChecked = intent.getBooleanExtra("Timer", false)
-                    Log.i("","www $isChecked")
 
-                    timer()
+                    if(isChecked == true){
+                        cuntNum.start()
+                        isChecked = false
+                    }
+
+                    Text(
+                        text = "$setVeiw",
+                        modifier = Modifier
+                            .padding(10.dp),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color =  Color(17, 57, 70)
+                    )
                 },
             )
 
-            // Your screen content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -132,8 +235,174 @@ class GuessCountry : ComponentActivity() {
                     modifier = Modifier
                         .weight(2f)
                 ){
-                    loadCountryList()
-//                    testing()
+
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        if(!openDialog.value){
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(5f)
+                                    .padding(vertical = 8.dp)
+                            ) {
+                                items(countryMap.size) { index ->
+                                    val (key, value) = countryMap.entries.toList()[index]
+
+
+                                    Button(
+
+                                        onClick = {
+                                            chosedAnswer = key
+
+                                            buttonStates = buttonStates.mapValues { (btnKey, _) ->
+                                                btnKey == key
+                                            }
+                                            Log.i("","kkk $chosedAnswer $generatedImage")
+
+
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        shape = RoundedCornerShape(30),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (buttonStates[key] == true) Color(26, 93, 26) else Color(17,190,121),
+                                        )
+
+                                    ) {
+                                        Text(text = value, color = Color.Black, fontSize = 20.sp)
+                                    }
+                                }
+                            }
+                        }else{
+                            Box(
+                                modifier = Modifier
+                                    .weight(5f)
+                            ){
+                                val cornerSize = 10.dp
+
+                                var textColour: Color
+                                var boxColor = Color(174, 214, 241)
+                                var correctOrWrong:String
+
+                                if(generatedImage == chosedAnswer){
+                                    textColour = Color(0, 255, 0)
+                                    correctOrWrong = "Correct"
+                                }else {
+                                    textColour = Color(255, 0, 0)
+                                    correctOrWrong = "Wrong"
+                                }
+
+                                if(openDialog.value){
+                                    Popup(
+                                        alignment = Alignment.TopStart,
+                                        properties = PopupProperties()
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxHeight(0.5f)
+                                                .fillMaxWidth()
+//                                    .height(400.dp)
+                                                .padding(10.dp)
+                                                .background(
+                                                    boxColor,
+                                                    RoundedCornerShape(cornerSize)
+                                                )
+                                                .border(
+                                                    1.dp,
+                                                    Color.Black,
+                                                    RoundedCornerShape(cornerSize)
+                                                ),
+                                        ){
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center,
+                                                modifier = Modifier.fillMaxSize()
+                                            ) {
+                                                Text(
+                                                    text = "${correctOrWrong}",
+                                                    modifier = Modifier.padding(vertical = 10.dp),
+                                                    fontSize = 36.sp,
+                                                    color = textColour,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    text = "${generatedImageName}",
+                                                    modifier = Modifier.padding(vertical = 10.dp),
+                                                    fontSize = 36.sp,
+                                                    color = Color(36, 113, 163),
+                                                )
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                isPressed = !isPressed
+                                if(generatedImage == chosedAnswer){
+                                    if(isPressed){
+                                        cuntNum.cancel()
+                                        setVeiw = "Winner"
+                                    }
+                                    openDialog.value = !openDialog.value
+                                    openBoxMain = !openBoxMain
+                                }else if(generatedImage != chosedAnswer) {
+                                    if(isPressed){
+                                        cuntNum.cancel()
+                                        setVeiw = "Lose"
+                                    }
+                                    openDialog.value = !openDialog.value
+                                    openBoxMain = !openBoxMain
+                                }
+                                refreshCounter++
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(20),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(17, 57, 70)
+                            )
+                        )
+                        {
+                            Text(text = if (isPressed) "Next" else "Submit")
+                        }
+
+                        if(refreshCounter > 1){
+
+                            orientation = false
+
+                            openBoxMain = false
+
+                            isPressedMain = false
+
+                            numCount = 11000
+
+                            setContent {
+
+                                randomProcess()
+
+                                isChecked = intent.getBooleanExtra("Timer",false)
+
+                                refreshCounter = 0
+
+                                FlagguessingandroidapplicationTheme {
+                                    // A surface container using the 'background' color from the theme
+                                    Surface(
+                                        modifier = Modifier.fillMaxSize(),
+                                        color = MaterialTheme.colorScheme.background
+                                    ) {
+                                        GuessCountryScreenContent()
+                                    }
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
         }
@@ -147,8 +416,8 @@ class GuessCountry : ComponentActivity() {
 
         var refreshCounter by remember { mutableStateOf(0) }
 
-
         val context = LocalContext.current
+
         val countryMap = remember { mutableMapOf<String, String>() }
         readJson(context, countryMap)
 
@@ -156,12 +425,8 @@ class GuessCountry : ComponentActivity() {
 
         var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
 
-
         var isPressed by remember { mutableStateOf(false) }
 
-
-        // Now, you can use the countryMap as needed in your Compose code
-        // For example, you can print the content of the map
         Column(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
@@ -329,9 +594,7 @@ class GuessCountry : ComponentActivity() {
     }
 
     @Composable
-    fun RandomImage() {
-
-
+    fun randomProcess(){
         val context = LocalContext.current
         val countryMap = remember { mutableMapOf<String, String>() }
         readJson(context, countryMap)
@@ -598,9 +861,11 @@ class GuessCountry : ComponentActivity() {
 
         val randomDrawableId = drawableList.random()
 
+        generatedImageID = randomDrawableId
+
         // Get the name of the generated drawable resource using reflection
         val drawableName: String = try {
-            val fieldName = context.resources.getResourceEntryName(randomDrawableId)
+            val fieldName = context.resources.getResourceEntryName(generatedImageID)
             "R.drawable.$fieldName"
         } catch (e: Resources.NotFoundException) {
             "Unknown"
@@ -608,6 +873,10 @@ class GuessCountry : ComponentActivity() {
 
         generatedImage = drawableName.substring(11).uppercase()
 
+    }
+
+    @Composable
+    fun RandomImage() {
 
         Box(
             contentAlignment = Alignment.Center,
@@ -619,7 +888,7 @@ class GuessCountry : ComponentActivity() {
 
         ){
             Image(
-                painter = painterResource(id = randomDrawableId),
+                painter = painterResource(id = generatedImageID),
 //                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
                 contentDescription = "Country Flag",
                 contentScale = ContentScale.Crop
@@ -664,42 +933,57 @@ class GuessCountry : ComponentActivity() {
 
     }
 
-    @Composable
-    fun timer(){
-
-
-
-        var nums:Long by remember { mutableStateOf(10) }
-        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
-        val cuntNum = object : CountDownTimer(10000,1000){
-            override fun onTick(millisUntilFinished: Long) {
-                nums = millisUntilFinished/1000
-                setVeiw = "$nums"
-            }
-
-            override fun onFinish() {
-                setVeiw = "Finished"
-            }
-        }
-
-
-        if(isChecked == true){
-            cuntNum.start()
-            isChecked = false
-        }
-
-        Text(
-            text = "$setVeiw",
-            modifier = Modifier
-                .padding(10.dp),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color =  Color(17, 57, 70)
-        )
-
-
-
-    }
+//    @Composable
+//    fun timer(){
+//
+//
+//
+//        var nums:Long by remember { mutableStateOf(10) }
+//        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+//        val cuntNum = object : CountDownTimer(10000,1000){
+//            override fun onTick(millisUntilFinished: Long) {
+//                nums = millisUntilFinished/1000
+//                setVeiw = "$nums"
+//            }
+//
+//            override fun onFinish() {
+//                setVeiw = "Finished"
+//
+//                isPressed = !isPressed
+//                if(generatedImage == chosedAnswer){
+//                    if(isPressed){
+//                        Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
+//                    }
+//                    openDialog.value = !openDialog.value
+//                }else if(generatedImage != chosedAnswer) {
+//                    if(isPressed){
+//                        Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
+//                    }
+//                    openDialog.value = !openDialog.value
+//                }
+//
+//                refreshCounter++
+//            }
+//        }
+//
+//
+//        if(isChecked == true){
+//            cuntNum.start()
+//            isChecked = false
+//        }
+//
+//        Text(
+//            text = "$setVeiw",
+//            modifier = Modifier
+//                .padding(10.dp),
+//            fontSize = 18.sp,
+//            fontWeight = FontWeight.Bold,
+//            color =  Color(17, 57, 70)
+//        )
+//
+//
+//
+//    }
 
 
 }
