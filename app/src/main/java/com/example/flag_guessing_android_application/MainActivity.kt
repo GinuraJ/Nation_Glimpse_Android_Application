@@ -6,8 +6,10 @@ import android.os.PersistableBundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,8 +38,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,38 +66,63 @@ class MainActivity : ComponentActivity() {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1.5f)
-                        .background(Color.Blue)
-                        .fillMaxHeight()
-                        .background(Color.White)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Topic")
-                    Text(text = "Topic")
 
-                    Row(
+                Box(
+                    modifier = Modifier
+                        .weight(1.5f),
+                ){
+//                    Image(
+//                        painter = painterResource (id = R.drawable.worldmap3),
+//                        contentDescription = "Background image",
+//                        contentScale = ContentScale.FillBounds,
+//                        modifier = Modifier.matchParentSize()
+//                    )
+
+                    Column(
                         modifier = Modifier
-                            .padding(16.dp)
+//                            .weight(1.5f)
+//                            .background(Color.Blue)
+                            .fillMaxHeight()
+//                            .background(Color.White)
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
+                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Switch(
-                            checked = isChecked,
-                            onCheckedChange = { newCheckedState ->
-                                isChecked = newCheckedState
-                                isCheckedMain = !isCheckedMain
-                                // Handle the new state as needed
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White,
-                                uncheckedThumbColor = Color.Black
-                            ),
+                        Text(
+
+                            text = "  \uD835\uDCDD\uD835\uDCEA\uD835\uDCFD\uD835\uDCF2\uD835\uDCF8\uD835\uDCF7 \n     \uD835\uDCD6\uD835\uDCF5\uD835\uDCF2\uD835\uDCF6\uD835\uDCF9\uD835\uDCFC\uD835\uDCEE",
+                            fontSize = 60.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier
+//                                .padding(10.dp)
+                                .background(Color(12, 45, 72))
+                                
+//                                .background(Color.Black)
+                                .fillMaxWidth()
                         )
+
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Switch(
+                                checked = isChecked,
+                                onCheckedChange = { newCheckedState ->
+                                    isChecked = newCheckedState
+                                    isCheckedMain = !isCheckedMain
+                                    // Handle the new state as needed
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    uncheckedThumbColor = Color.Black
+                                ),
+                            )
+                        }
                     }
                 }
+
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -189,17 +221,6 @@ class MainActivity : ComponentActivity() {
                 }
 
             }
-
-//            FlagguessingandroidapplicationTheme {
-//                // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = MaterialTheme.colorScheme.background
-//                ) {
-//                    Greeting("Android")
-//                }
-//            }
-
 
         }
     }

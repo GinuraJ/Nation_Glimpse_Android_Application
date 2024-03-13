@@ -1,14 +1,11 @@
 package com.example.flag_guessing_android_application
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -24,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -38,11 +34,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -51,7 +44,6 @@ import kotlinx.serialization.json.Json
 class GuessTheFlag : ComponentActivity() {
 
     var isChecked = false
-
     var generatedDrawableID1 = 0
     var generatedDrawableID2 = 0
     var generatedDrawableID3 = 0
@@ -60,20 +52,20 @@ class GuessTheFlag : ComponentActivity() {
     var generatedImageName2 = ""
     var generatedImageName3 = ""
     var userSelectedFlagName = ""
-
-
-
+    var orientation = false
+    var ChosedTheAnswerMain = false
+    var userAnswerIs = ""
+    var numCount:Long = 11000
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
-
-
         super.onCreate(savedInstanceState)
         setContent {
 
-            RandomImage()
+            if(!orientation){
+                RandomImage()
+            }
 
             isChecked = intent.getBooleanExtra("Timer",false)
 
@@ -89,11 +81,42 @@ class GuessTheFlag : ComponentActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("orientation", true)
+        outState.putInt("generatedDrawableID1",generatedDrawableID1)
+        outState.putInt("generatedDrawableID2",generatedDrawableID2)
+        outState.putInt("generatedDrawableID3",generatedDrawableID3)
+        outState.putString("randomImageName",randomImageName)
+        outState.putString("generatedImageName1",generatedImageName1)
+        outState.putString("generatedImageName2",generatedImageName2)
+        outState.putString("generatedImageName3",generatedImageName3)
+        outState.putString("userSelectedFlagName",userSelectedFlagName)
+        outState.putBoolean("ChosedTheAnswerMain", ChosedTheAnswerMain)
+        outState.putString("userAnswerIs",userAnswerIs)
+        outState.putLong("numCount",numCount)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        orientation = savedInstanceState.getBoolean("orientation",false)
+        generatedDrawableID1 = savedInstanceState.getInt("generatedDrawableID1",0)
+        generatedDrawableID2 = savedInstanceState.getInt("generatedDrawableID2",0)
+        generatedDrawableID3 = savedInstanceState.getInt("generatedDrawableID3",0)
+        randomImageName = savedInstanceState.getString("randomImageName","")
+        generatedImageName1 = savedInstanceState.getString("generatedImageName1","")
+        generatedImageName2 = savedInstanceState.getString("generatedImageName2","")
+        generatedImageName3 = savedInstanceState.getString("generatedImageName3","")
+        ChosedTheAnswerMain = savedInstanceState.getBoolean("ChosedTheAnswerMain",false)
+        userAnswerIs = savedInstanceState.getString("userAnswerIs","")
+        numCount = savedInstanceState.getLong("numCount",11000)
+
+
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun GuessTheFlagScreenContent() {
-
-        var userAnswerIs by remember { mutableStateOf("") }
 
         fun CheckTheAnswer(){
             if(userSelectedFlagName == randomImageName){
@@ -105,7 +128,7 @@ class GuessTheFlag : ComponentActivity() {
             }
         }
 
-        var ChosedTheAnswer = remember { mutableStateOf(false) }
+        var ChosedTheAnswer = remember { mutableStateOf(ChosedTheAnswerMain) }
 
         var refreshCounter by remember { mutableStateOf(0) }
 
@@ -113,11 +136,12 @@ class GuessTheFlag : ComponentActivity() {
 
         var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
 
-        val cuntNum = object : CountDownTimer(11000,1000){
+        val cuntNum = object : CountDownTimer(numCount,1000){
 
             override fun onTick(millisUntilFinished: Long) {
                 nums = millisUntilFinished/1000
                 setVeiw = "$nums"
+                numCount = nums*1000
             }
 
             override fun onFinish() {
@@ -218,7 +242,7 @@ class GuessTheFlag : ComponentActivity() {
                                         .padding(10.dp)
                                         .clickable {
                                             ChosedTheAnswer.value = !ChosedTheAnswer.value
-                                            userSelectedFlagName = generatedImageName1
+                                            ChosedTheAnswerMain = !ChosedTheAnswerMain
                                             CheckTheAnswer()
                                             cuntNum.cancel()
                                             setVeiw = "Finished"
@@ -242,6 +266,7 @@ class GuessTheFlag : ComponentActivity() {
                                         .clickable {
                                             ChosedTheAnswer.value = !ChosedTheAnswer.value
                                             userSelectedFlagName = generatedImageName2
+                                            ChosedTheAnswerMain = !ChosedTheAnswerMain
                                             CheckTheAnswer()
                                             cuntNum.cancel()
                                             setVeiw = "Finished"
@@ -265,6 +290,7 @@ class GuessTheFlag : ComponentActivity() {
                                         .clickable {
                                             ChosedTheAnswer.value = !ChosedTheAnswer.value
                                             userSelectedFlagName = generatedImageName3
+                                            ChosedTheAnswerMain = !ChosedTheAnswerMain
                                             CheckTheAnswer()
                                             cuntNum.cancel()
                                             setVeiw = "Finished"
@@ -309,6 +335,14 @@ class GuessTheFlag : ComponentActivity() {
                             }
 
                             if(refreshCounter != 0){
+
+                                orientation = false
+
+                                ChosedTheAnswerMain = false
+
+                                userAnswerIs = ""
+
+                                numCount = 11000
 
                                 setContent {
 

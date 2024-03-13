@@ -44,6 +44,8 @@ import kotlinx.serialization.json.Json
 
 class GuessCountry : ComponentActivity() {
 
+    val reusable = Reusable()
+
     var generatedImage = "ad"
 
     var generatedImageName = ""
@@ -127,7 +129,7 @@ class GuessCountry : ComponentActivity() {
         val context = LocalContext.current
 
         val countryMap = remember { mutableMapOf<String, String>() }
-        readJson(context, countryMap)
+        reusable.readJson(context, countryMap)
 
         generatedImageName = countryMap[generatedImage.uppercase()].toString()
 
@@ -408,196 +410,199 @@ class GuessCountry : ComponentActivity() {
         }
     }
 
-
-    @Composable
-    fun loadCountryList() {
-
-        val openDialog = remember { mutableStateOf(false) }
-
-        var refreshCounter by remember { mutableStateOf(0) }
-
-        val context = LocalContext.current
-
-        val countryMap = remember { mutableMapOf<String, String>() }
-        readJson(context, countryMap)
-
-        generatedImageName = countryMap[generatedImage.uppercase()].toString()
-
-        var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
-
-        var isPressed by remember { mutableStateOf(false) }
-
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-        ) {
-            if(!openDialog.value){
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(5f)
-                        .padding(vertical = 8.dp)
-//                    .height(300.dp)
-                ) {
-                    items(countryMap.size) { index ->
-                        val (key, value) = countryMap.entries.toList()[index]
-
-
-                        Button(
-
-                            onClick = {
-                                chosedAnswer = key
-
-                                buttonStates = buttonStates.mapValues { (btnKey, _) ->
-                                    btnKey == key
-                                }
-                                Log.i("","kkk $chosedAnswer $generatedImage")
-
-
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(),
-//                            .padding(8.dp),
-                            shape = RoundedCornerShape(30),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (buttonStates[key] == true) Color(26, 93, 26) else Color(17,190,121),
-                            )
+//
+//    @Composable
+//    fun loadCountryList() {
+//
+//        val openDialog = remember { mutableStateOf(false) }
+//
+//        var refreshCounter by remember { mutableStateOf(0) }
+//
+//        val context = LocalContext.current
+//
+//        val countryMap = remember { mutableMapOf<String, String>() }
+//        readJson(context, countryMap)
+//
+//        generatedImageName = countryMap[generatedImage.uppercase()].toString()
+//
+//        var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
+//
+//        var isPressed by remember { mutableStateOf(false) }
+//
+//        Column(
+//            modifier = Modifier
+//                .padding(horizontal = 8.dp)
+//        ) {
+//            if(!openDialog.value){
+//                LazyColumn(
+//                    modifier = Modifier
+//                        .weight(5f)
+//                        .padding(vertical = 8.dp)
+////                    .height(300.dp)
+//                ) {
+//                    items(countryMap.size) { index ->
+//                        val (key, value) = countryMap.entries.toList()[index]
+//
+//
+//                        Button(
+//
+//                            onClick = {
+//                                chosedAnswer = key
+//
+//                                buttonStates = buttonStates.mapValues { (btnKey, _) ->
+//                                    btnKey == key
+//                                }
+//                                Log.i("","kkk $chosedAnswer $generatedImage")
+//
+//
+//                            },
+//                            modifier = Modifier
+//                                .fillMaxWidth(),
+////                            .padding(8.dp),
+//                            shape = RoundedCornerShape(30),
 //                            colors = ButtonDefaults.buttonColors(
-//                                containerColor = Color(26, 93, 26)
+//                                containerColor = if (buttonStates[key] == true) Color(26, 93, 26) else Color(17,190,121),
 //                            )
-                        ) {
-                            Text(text = value, color = Color.Black, fontSize = 20.sp)
-                        }
-                    }
-                }
-            }else{
-                Box(
-                    modifier = Modifier
-                        .weight(5f)
-                ){
-                    val cornerSize = 10.dp
+////                            colors = ButtonDefaults.buttonColors(
+////                                containerColor = Color(26, 93, 26)
+////                            )
+//                        ) {
+//                            Text(text = value, color = Color.Black, fontSize = 20.sp)
+//                        }
+//                    }
+//                }
+//            }else{
+//                Box(
+//                    modifier = Modifier
+//                        .weight(5f)
+//                ){
+//                    val cornerSize = 10.dp
+//
+//                    var textColour: Color
+//                    var boxColor = Color(174, 214, 241)
+//                    var correctOrWrong:String
+//
+//                    if(generatedImage == chosedAnswer){
+//                        textColour = Color(0, 255, 0)
+//                        correctOrWrong = "Correct"
+//                    }else {
+//                        textColour = Color(255, 0, 0)
+//                        correctOrWrong = "Wrong"
+//                    }
+//
+//                    if(openDialog.value){
+//                        Popup(
+//                            alignment = Alignment.TopStart,
+//                            properties = PopupProperties()
+//                        ) {
+//                            Box(
+//                                modifier = Modifier
+//                                    .fillMaxHeight(0.5f)
+//                                    .fillMaxWidth()
+////                                    .height(400.dp)
+//                                    .padding(10.dp)
+//                                    .background(boxColor, RoundedCornerShape(cornerSize))
+//                                    .border(1.dp, Color.Black, RoundedCornerShape(cornerSize)),
+//                            ){
+//                                Column(
+//                                    horizontalAlignment = Alignment.CenterHorizontally,
+//                                    verticalArrangement = Arrangement.Center,
+//                                    modifier = Modifier.fillMaxSize()
+//                                ) {
+//                                    Text(
+//                                        text = "${correctOrWrong}",
+//                                        modifier = Modifier.padding(vertical = 10.dp),
+//                                        fontSize = 36.sp,
+//                                        color = textColour,
+//                                        fontWeight = FontWeight.Bold
+//                                    )
+//                                    Text(
+//                                        text = "${generatedImageName}",
+//                                        modifier = Modifier.padding(vertical = 10.dp),
+//                                        fontSize = 36.sp,
+//                                        color = Color(36, 113, 163),
+//                                    )
+//
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//
+//            Button(
+//                onClick = {
+//                    isPressed = !isPressed
+//                    if(generatedImage == chosedAnswer){
+//                        if(isPressed){
+//                            Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
+//                        }
+//                        openDialog.value = !openDialog.value
+//                    }else if(generatedImage != chosedAnswer) {
+//                        if(isPressed){
+//                            Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
+//                        }
+//                        openDialog.value = !openDialog.value
+//                    }
+//
+//                    refreshCounter++
+//                          },
+//                modifier = Modifier
+//                    .weight(1f)
+//                    .fillMaxWidth(),
+//                shape = RoundedCornerShape(20),
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color(17, 57, 70)
+//                )
+//            )
+//            {
+//                Text(text = if (isPressed) "Next" else "Submit")
+//            }
+//
+//            if(refreshCounter > 1){
+//                setContent {
+//                    refreshCounter = 0
+//                    FlagguessingandroidapplicationTheme {
+//                        // A surface container using the 'background' color from the theme
+//                        Surface(
+//                            modifier = Modifier.fillMaxSize(),
+//                            color = MaterialTheme.colorScheme.background
+//                        ) {
+//                            GuessCountryScreenContent()
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
+//    }
+//
 
-                    var textColour: Color
-                    var boxColor = Color(174, 214, 241)
-                    var correctOrWrong:String
-
-                    if(generatedImage == chosedAnswer){
-                        textColour = Color(0, 255, 0)
-                        correctOrWrong = "Correct"
-                    }else {
-                        textColour = Color(255, 0, 0)
-                        correctOrWrong = "Wrong"
-                    }
-
-                    if(openDialog.value){
-                        Popup(
-                            alignment = Alignment.TopStart,
-                            properties = PopupProperties()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxHeight(0.5f)
-                                    .fillMaxWidth()
-//                                    .height(400.dp)
-                                    .padding(10.dp)
-                                    .background(boxColor, RoundedCornerShape(cornerSize))
-                                    .border(1.dp, Color.Black, RoundedCornerShape(cornerSize)),
-                            ){
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Text(
-                                        text = "${correctOrWrong}",
-                                        modifier = Modifier.padding(vertical = 10.dp),
-                                        fontSize = 36.sp,
-                                        color = textColour,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "${generatedImageName}",
-                                        modifier = Modifier.padding(vertical = 10.dp),
-                                        fontSize = 36.sp,
-                                        color = Color(36, 113, 163),
-                                    )
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            Button(
-                onClick = {
-                    isPressed = !isPressed
-                    if(generatedImage == chosedAnswer){
-                        if(isPressed){
-                            Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
-                        }
-                        openDialog.value = !openDialog.value
-                    }else if(generatedImage != chosedAnswer) {
-                        if(isPressed){
-                            Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
-                        }
-                        openDialog.value = !openDialog.value
-                    }
-
-                    refreshCounter++
-                          },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(20),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(17, 57, 70)
-                )
-            )
-            {
-                Text(text = if (isPressed) "Next" else "Submit")
-            }
-
-            if(refreshCounter > 1){
-                setContent {
-                    refreshCounter = 0
-                    FlagguessingandroidapplicationTheme {
-                        // A surface container using the 'background' color from the theme
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.background
-                        ) {
-                            GuessCountryScreenContent()
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-
-    fun readJson(context: Context, countryMap: MutableMap<String, String>) {
-        // Read JSON from assets
-        try {
-            val json: String = context.assets.open("Countries.json").bufferedReader().use{it.readText() }
-
-            // Parse JSON using kotlinx.serialization
-            val countryDataList = Json.decodeFromString<Map<String, String>>(json)
-
-            // Update the countryMap
-            countryMap.putAll(countryDataList)
-        } catch (e: Exception) {
-            // Handle exceptions (e.g., JSON parsing errors)
-            // You may want to log the exception or show an error message
-            e.printStackTrace()
-        }
-    }
+//
+//    fun readJson(context: Context, countryMap: MutableMap<String, String>) {
+//        // Read JSON from assets
+//        try {
+//            val json: String = context.assets.open("Countries.json").bufferedReader().use{it.readText() }
+//
+//            // Parse JSON using kotlinx.serialization
+//            val countryDataList = Json.decodeFromString<Map<String, String>>(json)
+//
+//            // Update the countryMap
+//            countryMap.putAll(countryDataList)
+//        } catch (e: Exception) {
+//            // Handle exceptions (e.g., JSON parsing errors)
+//            // You may want to log the exception or show an error message
+//            e.printStackTrace()
+//        }
+//    }
 
     @Composable
     fun randomProcess(){
+
         val context = LocalContext.current
         val countryMap = remember { mutableMapOf<String, String>() }
-        readJson(context, countryMap)
+        reusable.readJson(context, countryMap)
 
         val drawableList = listOf(
 
@@ -886,7 +891,7 @@ class GuessCountry : ComponentActivity() {
                 .background(Color(17, 57, 70))
                 .padding(10.dp)
 
-        ){
+        ) {
             Image(
                 painter = painterResource(id = generatedImageID),
 //                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
@@ -896,95 +901,7 @@ class GuessCountry : ComponentActivity() {
         }
 
 
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(200.dp)
-//                .clip(MaterialTheme.shapes.medium),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
-//        ) {
-//            Image(
-//                painter = painterResource(id = randomDrawableId),
-//                contentDescription = "Country Flag",
-//                contentScale = ContentScale.Crop
-//            )
-//
-//        }
-
     }
-    
-    @Composable
-    fun testing(){
-        val context = LocalContext.current
-        val countryMap = remember { mutableMapOf<String, String>() }
-        readJson(context, countryMap)
-
-        val randomKey = countryMap.keys.random()
-
-        val imageName = randomKey.lowercase()
-        
-        Text(text = "$randomKey")
-        Text(text = "$imageName")
-
-        val selectedImage = "ad.png" // Ensure no extra spaces
-
-        Text(text = "$selectedImage")
-
-    }
-
-//    @Composable
-//    fun timer(){
-//
-//
-//
-//        var nums:Long by remember { mutableStateOf(10) }
-//        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
-//        val cuntNum = object : CountDownTimer(10000,1000){
-//            override fun onTick(millisUntilFinished: Long) {
-//                nums = millisUntilFinished/1000
-//                setVeiw = "$nums"
-//            }
-//
-//            override fun onFinish() {
-//                setVeiw = "Finished"
-//
-//                isPressed = !isPressed
-//                if(generatedImage == chosedAnswer){
-//                    if(isPressed){
-//                        Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
-//                    }
-//                    openDialog.value = !openDialog.value
-//                }else if(generatedImage != chosedAnswer) {
-//                    if(isPressed){
-//                        Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
-//                    }
-//                    openDialog.value = !openDialog.value
-//                }
-//
-//                refreshCounter++
-//            }
-//        }
-//
-//
-//        if(isChecked == true){
-//            cuntNum.start()
-//            isChecked = false
-//        }
-//
-//        Text(
-//            text = "$setVeiw",
-//            modifier = Modifier
-//                .padding(10.dp),
-//            fontSize = 18.sp,
-//            fontWeight = FontWeight.Bold,
-//            color =  Color(17, 57, 70)
-//        )
-//
-//
-//
-//    }
-
 
 }
 

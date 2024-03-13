@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -54,11 +55,14 @@ class GuessHint : ComponentActivity() {
     var chooseCorrect = 0
 
     var countryNameGuessing = ""
-
     var isChecked = false
-
     var generatedImageDrawableId = 0
-
+    var orientation = false
+    var looseOrWinMain = false
+    var isPressedmain = false
+    var refreshCounter = 0
+    var numCount:Long = 11000
+    var timeIsUp = false
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +71,11 @@ class GuessHint : ComponentActivity() {
         
         setContent {
 
-            RandomImageProcess()
+            if(!orientation){
+                RandomImageProcess()
+                Log.i(""," eee ${generatedImageName}")
+            }
+
 
             isChecked = intent.getBooleanExtra("Timer",false)
 
@@ -84,109 +92,94 @@ class GuessHint : ComponentActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString("generatedImageKey",generatedImageKey)
+        outState.putString("generatedImageName",generatedImageName)
+        outState.putString("displayText",displayText)
+        outState.putString("countryNameGuessing",countryNameGuessing)
+        outState.putInt("count",count)
+        outState.putInt("looseCount",looseCount)
+        outState.putInt("chooseCorrect",chooseCorrect)
+        outState.putInt("generatedImageDrawableId",generatedImageDrawableId)
+        outState.putBoolean("isChecked",isChecked)
+        outState.putBoolean("orientation", true)
+        outState.putStringArray("mutableList", mutableList.toTypedArray())
+        outState.putBoolean("looseOrWinMain", looseOrWinMain)
+        outState.putBoolean("isPressedmain", isPressedmain)
+        outState.putLong("numCount",numCount)
+        outState.putBoolean("timeIsUp", timeIsUp)
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        generatedImageKey = savedInstanceState.getString("generatedImageKey","")
+        generatedImageName = savedInstanceState.getString("generatedImageName","")
+        displayText = savedInstanceState.getString("displayText","")
+        countryNameGuessing = savedInstanceState.getString("countryNameGuessing","")
+        count = savedInstanceState.getInt("count",1)
+        looseCount = savedInstanceState.getInt("looseCount",0)
+        chooseCorrect = savedInstanceState.getInt("chooseCorrect",0)
+        generatedImageDrawableId = savedInstanceState.getInt("generatedImageDrawableId",0)
+        isChecked = savedInstanceState.getBoolean("isChecked",false)
+        orientation = savedInstanceState.getBoolean("orientation",false)
+        looseOrWinMain = savedInstanceState.getBoolean("looseOrWinMain",false)
+        isPressedmain = savedInstanceState.getBoolean("isPressedmain",false)
+        numCount = savedInstanceState.getLong("numCount",11000)
+        timeIsUp = savedInstanceState.getBoolean("timeIsUp",false)
+
+        val tempArray = savedInstanceState.getStringArray("mutableList")
+        mutableList.clear()
+        if (tempArray != null) {
+            mutableList.addAll(tempArray)
+        }
+
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun GuessHintScreenContent() {
 
-        var isPressed by remember { mutableStateOf(false) }
+        var isPressed by remember {mutableStateOf(isPressedmain)}
 
-        var loseOrWin = remember { mutableStateOf(false) }
+//        var loseOrWin = remember {mutableStateOf(false)}
 
-        var text by remember { mutableStateOf("") }
+        var loseOrWin = remember {mutableStateOf(looseOrWinMain)}
 
-        var refreshCounter by remember { mutableStateOf(0) }
+        var text by remember {mutableStateOf("") }
 
-        var nums:Long by remember { mutableStateOf(10) }
+//        var refreshCounter by remember {mutableStateOf(0)}
 
-        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+        var nums:Long by remember {mutableStateOf(10) }
 
-        val cuntNum = object : CountDownTimer(11000,1000){
+        var setVeiw:String by remember {mutableStateOf("⏰ OFF")}
+
+        val cuntNum = object : CountDownTimer(numCount,1000){
 
             override fun onTick(millisUntilFinished: Long) {
                 nums = millisUntilFinished/1000
                 setVeiw = "$nums"
+                numCount = nums*1000
             }
 
             override fun onFinish() {
 
                 setVeiw = "Finished"
 
-                var chosedCorrect = 0
+                timeIsUp = true
 
-                for (index in generatedImageName.indices) {
-
-                    val char = generatedImageName[index].toString()
-
-                    if (char == text.uppercase()) {
-
-                        countryNameGuessing = "$char $text"
-
-                        mutableList[index] = char
-
-                        displayText = ""
-
-                        for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
-
-                            displayText = displayText + " ${mutableList[index]} "
-                        }
-
-                        countryNameGuessing = displayText
-
-                        chosedCorrect = 1
-                    }
+                loseOrWin.value = !loseOrWin.value
+                looseOrWinMain = !looseOrWinMain
+                isPressed = !isPressed
+                isPressedmain = !isPressedmain
+                refreshCounter++
+//                cuntNum.cancel()
+                if(!isChecked){
+                    setVeiw = "Lose"
                 }
 
-                looseCount = 3
-
-                if(looseCount >= 3){
-                    loseOrWin.value = !loseOrWin.value
-                    isPressed = !isPressed
-                    refreshCounter++
-//                        mutableList.clear()
-                }
-
-                var emptyFound = 0
-                for(element in mutableList){
-                    if(element == " _ "){
-                        emptyFound++
-                    }
-                }
-                if(emptyFound == 0){
-                    loseOrWin.value = !loseOrWin.value
-                    isPressed = !isPressed
-                    chooseCorrect = 1
-                    refreshCounter++
-//                        mutableList.clear()
-
-                }
-
-                if(refreshCounter > 1){
-                    mutableList.clear()
-                    count = 1
-                    looseCount = 0
-                    chooseCorrect = 0
-                    displayText = ""
-
-                    setContent {
-                        RandomImageProcess()
-
-                        refreshCounter = 0
-                        isChecked = intent.getBooleanExtra("Timer",false)
-
-                        FlagguessingandroidapplicationTheme {
-                            // A surface container using the 'background' color from the theme
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                GuessHintScreenContent()
-                            }
-                        }
-                    }
-                }
-
-
-                text = ""
 
             }
         }
@@ -371,75 +364,99 @@ class GuessHint : ComponentActivity() {
                         }
                         Button(
                             onClick = {
-                                var chosedCorrect = 0
-                                for (index in generatedImageName.indices) {
 
-                                    val char = generatedImageName[index].toString()
+                                if(!timeIsUp){
+                                    var chosedCorrect = 0
 
-                                    if (char == "${text.uppercase()}") {
+                                    for (index in generatedImageName.indices) {
 
-                                        countryNameGuessing = "$char $text"
+                                        val char = generatedImageName[index].toString()
 
-                                        mutableList[index] = char
+                                        if (char == "${text.uppercase()}") {
 
-                                        displayText = ""
+                                            countryNameGuessing = "$char $text"
 
-                                        for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
+                                            mutableList[index] = char
 
-                                            displayText = displayText + " ${mutableList[index]} "
+                                            displayText = ""
+
+                                            for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
+
+                                                displayText = displayText + " ${mutableList[index]} "
+                                            }
+
+                                            countryNameGuessing = displayText
+
+                                            chosedCorrect = 1
                                         }
-
-                                        countryNameGuessing = displayText
-
-                                        chosedCorrect = 1
                                     }
-                                }
-                                if (chosedCorrect != 1){
-                                    looseCount++
-                                }
-                                if(looseCount >= 3){
-                                    loseOrWin.value = !loseOrWin.value
-                                    isPressed = !isPressed
-                                    refreshCounter++
-                                    cuntNum.cancel()
-                                    if(!isChecked){
-                                        setVeiw = "Lose"
+                                    if (chosedCorrect != 1){
+                                        looseCount++
                                     }
-//                        mutableList.clear()
+                                    if(looseCount >= 3){
+                                        loseOrWin.value = !loseOrWin.value
+                                        looseOrWinMain = !looseOrWinMain
+                                        isPressed = !isPressed
+                                        isPressedmain = !isPressedmain
+                                        refreshCounter++
+                                        cuntNum.cancel()
+                                        if(!isChecked){
+                                            setVeiw = "Lose"
+                                        }
+                                    }
+
+                                    var emptyFound = 0
+                                    for(element in mutableList){
+                                        if(element == " _ "){
+                                            emptyFound++
+                                        }
+                                    }
+                                    if(emptyFound == 0){
+                                        loseOrWin.value = !loseOrWin.value
+                                        looseOrWinMain = !looseOrWinMain
+                                        isPressed = !isPressed
+                                        isPressedmain = !isPressedmain
+                                        chooseCorrect = 1
+                                        refreshCounter++
+                                        cuntNum.cancel()
+                                        if(isChecked){
+                                            setVeiw = "Winner"
+                                        }
+                                    }
+                                }else{
+                                    refreshCounter = 2
                                 }
 
-                                var emptyFound = 0
-                                for(element in mutableList){
-                                    if(element == " _ "){
-                                        emptyFound++
-                                    }
-                                }
-                                if(emptyFound == 0){
-                                    loseOrWin.value = !loseOrWin.value
-                                    isPressed = !isPressed
-                                    chooseCorrect = 1
-                                    refreshCounter++
-                                    cuntNum.cancel()
-                                    if(isChecked){
-                                        setVeiw = "Winner"
-                                    }
-//                        mutableList.clear()
 
-                                }
 
                                 if(refreshCounter > 1){
+
+                                    refreshCounter = 0
+
                                     mutableList.clear()
                                     count = 1
                                     looseCount = 0
                                     chooseCorrect = 0
                                     displayText = ""
+                                    isChecked = false
+                                    generatedImageDrawableId = 0
+                                    orientation = false
+                                    loseOrWin.value = false
+                                    looseOrWinMain = false
+                                    isPressedmain = false
+
+                                    numCount = 11000
+
+                                    timeIsUp = false
 
                                     setContent {
-                                        RandomImageProcess()
+
+                                        if(!orientation){
+                                            RandomImageProcess()
+                                        }
 
                                         isChecked = intent.getBooleanExtra("Timer",false)
 
-                                        refreshCounter = 0
 
                                         FlagguessingandroidapplicationTheme {
                                             // A surface container using the 'background' color from the theme
@@ -452,7 +469,6 @@ class GuessHint : ComponentActivity() {
                                         }
                                     }
                                 }
-
 
                                 text = ""
                             },
@@ -491,7 +507,6 @@ class GuessHint : ComponentActivity() {
 
     @Composable
     fun RandomImageProcess() {
-
 
         val context = LocalContext.current
         val countryMap = remember { mutableMapOf<String, String>() }
@@ -756,7 +771,6 @@ class GuessHint : ComponentActivity() {
             R.drawable.zw
         )
 
-
         val randomDrawableId = drawableList.random()
 
         generatedImageDrawableId = randomDrawableId
@@ -774,8 +788,11 @@ class GuessHint : ComponentActivity() {
         generatedImageName = countryMap[generatedImageKey.uppercase()].toString().uppercase()
 
         if(count == 1){
+
             for (index in generatedImageName.indices) {
+
                 val char = generatedImageName[index]
+                
                 if (char == ' ') {
                     mutableList.add("   ")
                 } else {
@@ -791,242 +808,9 @@ class GuessHint : ComponentActivity() {
 
         countryNameGuessing = displayText
 
-
-//        Box(
-//            contentAlignment = Alignment.Center,
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .border(width = 2.dp, color = Color.Black)
-//                .background(Color(17, 57, 70))
-//                .padding(10.dp)
-//
-//        ){
-//            Image(
-//                painter = painterResource(id = generatedImageDrawableId),
-////                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
-//                contentDescription = "Country Flag",
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-
-
-
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(200.dp)
-//                .clip(MaterialTheme.shapes.medium),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
-//        ) {
-//            Image(
-//                painter = painterResource(id = randomDrawableId),
-//                contentDescription = "Country Flag",
-//                contentScale = ContentScale.Crop
-//            )
-//
-//        }
-
     }
+}
 
-    @Composable
-    fun guessHint() {
-
-        var isPressed by remember { mutableStateOf(false) }
-
-        var loseOrWin = remember { mutableStateOf(false) }
-
-        var text by remember { mutableStateOf("") }
-
-        var refreshCounter by remember { mutableStateOf(0) }
-
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(5f)
-                    .padding(vertical = 10.dp)
-                    .fillMaxWidth(),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(2f)
-//                        .background(Color.Blue)
-                        .border(5.dp, Color(5, 92, 157))
-                        .fillMaxWidth(),
-                ) {
-
-                }
-                
-                Spacer(modifier = Modifier.height(10.dp))
-
-                if(!loseOrWin.value){
-                    Box(
-                        modifier = Modifier
-                            .weight(1.5f)
-//                            .background(Color(255, 0, 124))
-                            .background(Color(136,225,241),shape = RoundedCornerShape(30))
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                        ) {
-                            Text(text = generatedImageName)
-                            Text(text = countryNameGuessing, color = Color.Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-//                        Text(text = "$displayText")
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1.5f)
-//                        .background(Color.Yellow)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .fillMaxWidth(),
-                            value = text,
-                            onValueChange = { text = it },
-                            label = { Text("Enter guessing character here") },
-                        )
-                    }
-                }else{
-                    var boxColor = Color(174, 214, 241)
-                    var textColour = Color(174, 214, 241)
-                    var correctOrWrongMsg = ""
-
-                    if(looseCount==3){
-                        textColour = Color(215, 0, 0)
-                        correctOrWrongMsg = "Wrong"
-                    }
-                    if(chooseCorrect == 1){
-                        textColour = Color(0, 215, 0)
-                        correctOrWrongMsg = "Correct"
-                    }
-
-
-                    Box(
-                        modifier = Modifier
-                            .weight(3f)
-                            .background(Color.Gray)
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ){
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Text(
-                                text = correctOrWrongMsg,
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontSize = 20.sp,
-                                color = textColour,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = generatedImageName,
-                                modifier = Modifier.padding(vertical = 10.dp),
-                                fontSize = 20.sp,
-                                color = Color(36, 113, 163),
-                            )
-                        }
-                    }
-                }
-            }
-            Button(
-                onClick = {
-                    var chosedCorrect = 0
-                    for (index in generatedImageName.indices) {
-
-                        val char = generatedImageName[index].toString()
-
-                        if (char == "${text.uppercase()}") {
-
-                            countryNameGuessing = "$char $text"
-
-                            mutableList[index] = char
-
-                            displayText = ""
-
-                            for (index in 0 until minOf(generatedImageName.length, mutableList.size)) {
-
-                                displayText = displayText + " ${mutableList[index]} "
-                            }
-
-                            countryNameGuessing = displayText
-
-                            chosedCorrect = 1
-                        }
-                    }
-                    if (chosedCorrect != 1){
-                        looseCount++
-                    }
-                    if(looseCount >= 3){
-                        loseOrWin.value = !loseOrWin.value
-                        isPressed = !isPressed
-                        refreshCounter++
-//                        mutableList.clear()
-                    }
-
-                    var emptyFound = 0
-                    for(element in mutableList){
-                        if(element == " _ "){
-                            emptyFound++
-                        }
-                    }
-                    if(emptyFound == 0){
-                        loseOrWin.value = !loseOrWin.value
-                        isPressed = !isPressed
-                        chooseCorrect = 1
-                        refreshCounter++
-//                        mutableList.clear()
-
-                    }
-
-                    if(refreshCounter > 1){
-                        mutableList.clear()
-                        count = 1
-                        looseCount = 0
-                        chooseCorrect = 0
-                        displayText = ""
-
-                        setContent {
-                            refreshCounter = 0
-
-                            FlagguessingandroidapplicationTheme {
-                                // A surface container using the 'background' color from the theme
-                                Surface(
-                                    modifier = Modifier.fillMaxSize(),
-                                    color = MaterialTheme.colorScheme.background
-                                ) {
-                                    GuessHintScreenContent()
-                                }
-                            }
-                        }
-                    }
-
-
-                    text = ""
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(20),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(17, 57, 70)
-                )
-            ) {
-                Text(text = if (isPressed) "Next" else "Submit")
-            }
-        }
-        }
-    }
 
 
 
