@@ -183,6 +183,7 @@ class GuessCountry : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // TopAppBar for navigation
+
             TopAppBar(
                 title = {
                     Text(text = "Guess Country")
@@ -222,7 +223,9 @@ class GuessCountry : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(204, 211, 202))
+//                    .background(Color(236, 226, 208))
+                    .background(Color.White)
+
                     .padding(vertical = 8.dp)
             ) {
                 Column (
@@ -268,7 +271,7 @@ class GuessCountry : ComponentActivity() {
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(30),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = if (buttonStates[key] == true) Color(26, 93, 26) else Color(17,190,121),
+                                            containerColor = if (buttonStates[key] == true) Color(162, 103, 105) else Color(213, 185, 178),
                                         )
 
                                     ) {
@@ -307,7 +310,7 @@ class GuessCountry : ComponentActivity() {
 //                                    .height(400.dp)
                                                 .padding(10.dp)
                                                 .background(
-                                                    boxColor,
+                                                    Color(236, 226, 208),
                                                     RoundedCornerShape(cornerSize)
                                                 )
                                                 .border(
@@ -367,7 +370,7 @@ class GuessCountry : ComponentActivity() {
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(20),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(17, 57, 70)
+                                containerColor = Color(88, 44, 77)
                             )
                         )
                         {
@@ -888,7 +891,7 @@ class GuessCountry : ComponentActivity() {
             modifier = Modifier
                 .fillMaxSize()
                 .border(width = 2.dp, color = Color.Black)
-                .background(Color(17, 57, 70))
+                .background(Color(191, 181, 192))
                 .padding(10.dp)
 
         ) {

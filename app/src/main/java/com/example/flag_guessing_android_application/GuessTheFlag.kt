@@ -193,7 +193,7 @@ class GuessTheFlag : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(204, 211, 202))
+                    .background(Color(236, 226, 208))
                     .padding(vertical = 8.dp)
             ) {
                 Column (
@@ -218,14 +218,14 @@ class GuessTheFlag : ComponentActivity() {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Color(242,212,92),shape = RoundedCornerShape(10.dp))
+                                    .background(Color(88, 44, 77),shape = RoundedCornerShape(10.dp))
                                     .border(2.dp, Color(24,21,9),shape = RoundedCornerShape(10.dp))
                                     .weight(0.5f),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = randomImageName,
-                                    color = Color(24,21,9),
+                                    color = Color(236, 226, 208),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 26.sp)
                             }
@@ -238,7 +238,7 @@ class GuessTheFlag : ComponentActivity() {
                                         .fillMaxSize()
                                         .weight(1f)
                                         .border(width = 2.dp, color = Color.Black)
-                                        .background(Color(17, 57, 70))
+                                        .background(Color(162, 103, 105))
                                         .padding(10.dp)
                                         .clickable {
                                             ChosedTheAnswer.value = !ChosedTheAnswer.value
@@ -261,7 +261,7 @@ class GuessTheFlag : ComponentActivity() {
                                         .fillMaxSize()
                                         .weight(1f)
                                         .border(width = 2.dp, color = Color.Black)
-                                        .background(Color(17, 57, 70))
+                                        .background(Color(162, 103, 105))
                                         .padding(10.dp)
                                         .clickable {
                                             ChosedTheAnswer.value = !ChosedTheAnswer.value
@@ -285,7 +285,7 @@ class GuessTheFlag : ComponentActivity() {
                                         .fillMaxSize()
                                         .weight(1f)
                                         .border(width = 2.dp, color = Color.Black)
-                                        .background(Color(17, 57, 70))
+                                        .background(Color(162, 103, 105))
                                         .padding(10.dp)
                                         .clickable {
                                             ChosedTheAnswer.value = !ChosedTheAnswer.value

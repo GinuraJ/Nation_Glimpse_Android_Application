@@ -538,6 +538,9 @@ class AdvanceLevel : ComponentActivity() {
                             .fillMaxWidth()
                             .weight(1f)
                             .padding(horizontal = 10.dp)
+                            .background(Color(236, 226, 208)),
+                        horizontalAlignment = Alignment.CenterHorizontally
+
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -551,7 +554,7 @@ class AdvanceLevel : ComponentActivity() {
                             Image(
                                 painter = painterResource(id = randomDrawableId1),
                                 contentDescription = "Country Flag",
-                                contentScale = ContentScale.Crop
+//                                contentScale = ContentScale.Crop
                             )
                         }
                         Box(
@@ -578,7 +581,9 @@ class AdvanceLevel : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .padding(horizontal = 10.dp)
+                            .padding(horizontal = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -592,7 +597,7 @@ class AdvanceLevel : ComponentActivity() {
                             Image(
                                 painter = painterResource(id = randomDrawableId2),
                                 contentDescription = "Country Flag",
-                                contentScale = ContentScale.Crop
+//                                contentScale = ContentScale.Crop
                             )
                         }
                         Box(
@@ -617,7 +622,8 @@ class AdvanceLevel : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .padding(horizontal = 10.dp)
+                            .padding(horizontal = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,
@@ -631,7 +637,7 @@ class AdvanceLevel : ComponentActivity() {
                             Image(
                                 painter = painterResource(id = randomDrawableId3),
                                 contentDescription = "Country Flag",
-                                contentScale = ContentScale.Crop
+//                                contentScale = ContentScale.Crop
                             )
                         }
                         Box(
@@ -669,11 +675,11 @@ class AdvanceLevel : ComponentActivity() {
                                 .weight(2f)
                                 .fillMaxWidth()
                                 .border(
-                                    3.dp,
-                                    Color(130, 117, 105),
+                                    2.dp,
+                                    Color(17, 57, 70),
                                     shape = RoundedCornerShape(10.dp)
                                 )
-                                .background(Color(186, 168, 150), shape = RoundedCornerShape(10.dp)),
+                                .background(Color(213, 185, 178), shape = RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center,
                         ){
                             Text(text = result,color = resultColor,fontSize = 30.sp)
@@ -683,20 +689,22 @@ class AdvanceLevel : ComponentActivity() {
                             modifier = Modifier
                                 .weight(7f)
                                 .fillMaxWidth()
-                                .border(5.dp, Color(17, 57, 70))
-                                .background(Color(165, 195, 207), shape = RoundedCornerShape(10.dp))
+                                .border(2.dp, Color(17, 57, 70), shape = RoundedCornerShape(10.dp))
+                                .background(Color.White, shape = RoundedCornerShape(10.dp))
                         ) {
                             Box(
                                 modifier = Modifier
                                     .weight(0.5f)
                                     .fillMaxHeight()
                                     .fillMaxWidth()
-                                    .background(Color(17, 57, 70)),
+                                    .border(2.dp, Color(17, 57, 70), shape = RoundedCornerShape(10.dp))
+                                    .background(Color(213, 185, 178),shape = RoundedCornerShape(10.dp)),
                                 contentAlignment = Alignment.Center
                             ){
                                 Text(
                                     text = "Result",
-                                    color = Color.White,
+                                    color = Color(88, 44, 77),
+                                    fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -708,6 +716,7 @@ class AdvanceLevel : ComponentActivity() {
                                         .fillMaxWidth()
                                         .weight(1f)
                                         .padding(horizontal = 10.dp)
+
 //                                        .background(Color.Red, shape = RoundedCornerShape(10.dp))
                                 ){
                                     Column(
@@ -719,7 +728,7 @@ class AdvanceLevel : ComponentActivity() {
                                         Text(
                                             text = "First flag",
                                             modifier = Modifier
-                                                .background(Color(233, 151, 135))
+                                                .background(Color(236, 226, 208))
                                                 .padding(5.dp)
                                                 .fillMaxWidth()
                                         )
@@ -746,7 +755,7 @@ class AdvanceLevel : ComponentActivity() {
                                         Text(
                                             text = "Second flag",
                                             modifier = Modifier
-                                                .background(Color(233, 151, 135))
+                                                .background(Color(236, 226, 208))
                                                 .padding(5.dp)
                                                 .fillMaxWidth()
                                         )
@@ -773,7 +782,7 @@ class AdvanceLevel : ComponentActivity() {
                                         Text(
                                             text = "Third flag",
                                             modifier = Modifier
-                                                .background(Color(233, 151, 135))
+                                                .background(Color(236, 226, 208))
                                                 .padding(5.dp)
                                                 .fillMaxWidth()
                                         )
@@ -800,7 +809,7 @@ class AdvanceLevel : ComponentActivity() {
                                     Text(
                                         text = "Score",
                                         modifier = Modifier
-                                            .background(Color(233, 151, 135))
+                                            .background(Color(236, 226, 208))
                                             .padding(5.dp)
                                             .fillMaxWidth()
                                     )
@@ -885,7 +894,7 @@ class AdvanceLevel : ComponentActivity() {
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(20),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(17, 57, 70)
+                        containerColor = Color(88, 44, 77)
                     )
                 )
                 {

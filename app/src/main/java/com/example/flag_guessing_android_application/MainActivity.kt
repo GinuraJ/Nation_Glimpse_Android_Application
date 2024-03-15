@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
 
             Column(
                 modifier = Modifier
-                    .background(Color.Yellow)
+//                    .background(Color.Yellow)
                     .fillMaxSize()
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -92,11 +92,12 @@ class MainActivity : ComponentActivity() {
                             text = "  \uD835\uDCDD\uD835\uDCEA\uD835\uDCFD\uD835\uDCF2\uD835\uDCF8\uD835\uDCF7 \n     \uD835\uDCD6\uD835\uDCF5\uD835\uDCF2\uD835\uDCF6\uD835\uDCF9\uD835\uDCFC\uD835\uDCEE",
                             fontSize = 60.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = Color.Black,
                             modifier = Modifier
 //                                .padding(10.dp)
-                                .background(Color(12, 45, 72))
-                                
+//                                .background(Color(12, 45, 72))
+                                .background(Color(236, 226, 208))
+
 //                                .background(Color.Black)
                                 .fillMaxWidth()
                         )
@@ -116,7 +117,7 @@ class MainActivity : ComponentActivity() {
                                 },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
-                                    uncheckedThumbColor = Color.Black
+                                    uncheckedThumbColor = Color.Black,
                                 ),
                             )
                         }
@@ -126,7 +127,7 @@ class MainActivity : ComponentActivity() {
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color(12, 45, 72))
+                        .background(Color(236, 226, 208))
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.Center
 
@@ -151,7 +152,9 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(17,190,121)
+//                                containerColor = Color(17,190,121)
+                                containerColor = Color(213, 185, 178)
+
                             )
                         )
                         {
@@ -168,7 +171,10 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(136,225,241)
+//                                containerColor = Color(136,225,241)
+                                containerColor = Color(191, 181, 192)
+
+
                             )
                         ) {
                             Text(text = "Guess hint")
@@ -195,7 +201,9 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(242,212,92)
+//                                containerColor = Color(242,212,92)
+                                containerColor = Color(162, 103, 105)
+
                             )
 
                         ) {
@@ -211,7 +219,9 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(160, 32, 240)
+//                                containerColor = Color(160, 32, 240)
+                                containerColor = Color(88, 44, 77)
+
                             )
 
                         ) {

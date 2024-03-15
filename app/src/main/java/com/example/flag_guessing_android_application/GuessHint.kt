@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -230,7 +232,7 @@ class GuessHint : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(204, 211, 202))
+                    .background(Color(236, 226, 208))
                     .padding(vertical = 8.dp)
             ) {
                 Column (
@@ -244,7 +246,8 @@ class GuessHint : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .border(width = 2.dp, color = Color.Black)
-                            .background(Color(17, 57, 70))
+//                            .background(Color(17, 57, 70))
+                            .background(Color(191, 181, 192))
                             .padding(10.dp)
 
                     ){
@@ -277,10 +280,16 @@ class GuessHint : ComponentActivity() {
                                 modifier = Modifier
                                     .weight(2f)
 //                        .background(Color.Blue)
-                                    .border(5.dp, Color(5, 92, 157))
+//                                    .border(2.dp, Color.Black)
                                     .fillMaxWidth(),
                             ) {
-
+                                Text(
+                                    text = "fgyfuerfer eyerugeyrre yergveyruvgyeru  rygvyrtyvutguy yrtugvuvyrtv ytgvurtgvtr ygvuyfvdvf uydfdkjfksieury gfhdjskkuf uyrgveruivherv uyfgvbnviseor uydfgvuyevgyr sjdjdjdfhfyttdd",
+                                    modifier = Modifier
+                                        .padding(vertical = 10.dp)
+                                        .fillMaxWidth()
+                                        .fillMaxHeight(),
+                                )
                             }
 
                             Spacer(modifier = Modifier.height(10.dp))
@@ -290,14 +299,17 @@ class GuessHint : ComponentActivity() {
                                     modifier = Modifier
                                         .weight(1.5f)
 //                            .background(Color(255, 0, 124))
-                                        .background(Color(136,225,241),shape = RoundedCornerShape(30))
+                                        .background(
+                                            Color(191, 181, 175),
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Column(
                                     ) {
                                         Text(text = generatedImageName)
-                                        Text(text = countryNameGuessing, color = Color.Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                        Text(text = countryNameGuessing, color = Color(88, 44, 77), fontSize = 20.sp, fontWeight = FontWeight.Bold)
 //                        Text(text = "$displayText")
                                     }
                                 }
@@ -318,7 +330,6 @@ class GuessHint : ComponentActivity() {
                                     )
                                 }
                             }else{
-                                var boxColor = Color(174, 214, 241)
                                 var textColour = Color(174, 214, 241)
                                 var correctOrWrongMsg = ""
 
@@ -335,7 +346,8 @@ class GuessHint : ComponentActivity() {
                                 Box(
                                     modifier = Modifier
                                         .weight(3f)
-                                        .background(Color.Gray)
+                                        .background(Color(213, 185, 178))
+                                        .border(2.dp, Color.Black, RoundedCornerShape(10.dp))
                                         .fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ){
@@ -477,7 +489,7 @@ class GuessHint : ComponentActivity() {
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(20),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(17, 57, 70)
+                                containerColor = Color(88, 44, 77)
                             )
                         ) {
                             Text(text = if (isPressed) "Next" else "Submit")
