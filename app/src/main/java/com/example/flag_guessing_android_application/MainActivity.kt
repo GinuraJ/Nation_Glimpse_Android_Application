@@ -71,12 +71,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .weight(1.5f),
                 ){
-//                    Image(
-//                        painter = painterResource (id = R.drawable.worldmap3),
-//                        contentDescription = "Background image",
-//                        contentScale = ContentScale.FillBounds,
-//                        modifier = Modifier.matchParentSize()
-//                    )
+                    Image(
+                        painter = painterResource (id = R.drawable.background),
+                        contentDescription = "Background image",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.matchParentSize()
+                    )
 
                     Column(
                         modifier = Modifier
