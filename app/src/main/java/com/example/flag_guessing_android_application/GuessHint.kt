@@ -283,13 +283,17 @@ class GuessHint : ComponentActivity() {
 //                                    .border(2.dp, Color.Black)
                                     .fillMaxWidth(),
                             ) {
-                                Text(
-                                    text = "fgyfuerfer eyerugeyrre yergveyruvgyeru  rygvyrtyvutguy yrtugvuvyrtv ytgvurtgvtr ygvuyfvdvf uydfdkjfksieury gfhdjskkuf uyrgveruivherv uyfgvbnviseor uydfgvuyevgyr sjdjdjdfhfyttdd",
-                                    modifier = Modifier
-                                        .padding(vertical = 10.dp)
-                                        .fillMaxWidth()
-                                        .fillMaxHeight(),
-                                )
+//                                Text(
+//                                    text = "The user will be using the\n" +
+//                                            "textbox to type a single character which is part of the country’s name in an attempt\n" +
+//                                            "to guess the flag’s country character by character and submit his guesses using the\n" +
+//                                            "“Submit” button. Any correct guesses of characters will be replacing the corresponding\n" +
+//                                            "dashes with the actual character",
+//                                    modifier = Modifier
+//                                        .padding(vertical = 10.dp)
+//                                        .fillMaxWidth()
+//                                        .fillMaxHeight(),
+//                                )
                             }
 
                             Spacer(modifier = Modifier.height(10.dp))
@@ -308,7 +312,7 @@ class GuessHint : ComponentActivity() {
                                 ) {
                                     Column(
                                     ) {
-                                        Text(text = generatedImageName)
+//                                        Text(text = generatedImageName)
                                         Text(text = countryNameGuessing, color = Color(88, 44, 77), fontSize = 20.sp, fontWeight = FontWeight.Bold)
 //                        Text(text = "$displayText")
                                     }
