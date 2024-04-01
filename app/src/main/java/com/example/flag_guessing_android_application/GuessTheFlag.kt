@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
@@ -42,6 +43,8 @@ import kotlinx.serialization.json.Json
 
 
 class GuessTheFlag : ComponentActivity() {
+
+    val reusable = Reusable()
 
     var isChecked = false
     var generatedDrawableID1 = 0
@@ -306,14 +309,27 @@ class GuessTheFlag : ComponentActivity() {
                                 Column(
                                     modifier = Modifier
                                         .weight(3f)
-                                        .background(Color.Yellow)
+//                                        .background(Color.Yellow)
                                         .fillMaxWidth()
                                 ) {
                                     Column(
                                         modifier = Modifier
-                                            .weight(5f)
+//                                            .background(Color.Blue)
+                                            .weight(5f),
+                                        verticalArrangement = Arrangement.Center
                                     ) {
-                                        Text(text = userAnswerIs)
+                                        Text(
+                                            modifier = Modifier
+                                                .fillMaxWidth(),
+                                            textAlign = TextAlign.Center,
+                                            fontSize = 35.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            text = userAnswerIs,
+                                            color = if (userAnswerIs == "Correct") {
+                                                Color.Green
+                                            } else {
+                                                Color.Red
+                                            }                                        )
                                     }
                                     Button(
                                         onClick = {
@@ -370,30 +386,14 @@ class GuessTheFlag : ComponentActivity() {
         }
     }
 
-    fun readJson(context: Context, countryMap: MutableMap<String, String>) {
-        // Read JSON from assets
-        try {
-            val json: String = context.assets.open("Countries.json").bufferedReader().use{it.readText() }
-
-            // Parse JSON using kotlinx.serialization
-            val countryDataList = Json.decodeFromString<Map<String, String>>(json)
-
-            // Update the countryMap
-            countryMap.putAll(countryDataList)
-        } catch (e: Exception) {
-            // Handle exceptions (e.g., JSON parsing errors)
-            // You may want to log the exception or show an error message
-            e.printStackTrace()
-        }
-    }
-
     @Composable
     fun RandomImage() {
 
 
         val context = LocalContext.current
         val countryMap = remember { mutableMapOf<String, String>() }
-        readJson(context, countryMap)
+
+        reusable.readJson(context, countryMap)
 
         val drawableList = listOf(
 

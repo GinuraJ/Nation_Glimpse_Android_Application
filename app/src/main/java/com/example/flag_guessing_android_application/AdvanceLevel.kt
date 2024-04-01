@@ -1,16 +1,15 @@
 package com.example.flag_guessing_android_application
 
-import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,38 +27,80 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flag_guessing_android_application.ui.theme.FlagguessingandroidapplicationTheme
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 
 
 class AdvanceLevel : ComponentActivity() {
+
+    val reusable = Reusable()
 
     var generatedImageName1 = ""
     var generatedImageName2 = ""
     var generatedImageName3 = ""
 
+    var generatedImageKey1 = ""
+    var generatedImageKey2 = ""
+    var generatedImageKey3 = ""
+
+
     var randomDrawableId1 = 0
     var randomDrawableId2 = 0
     var randomDrawableId3 = 0
 
+    var isChecked = false
+
+    var numCount:Long = 11000
 
     var loseCount = 0
+
+    var orientation = false
+
+//    var submitted = false
+
+    var isTextField1Enabled = true
+    var isTextField2Enabled = true
+    var isTextField3Enabled = true
+
+    var submitedMain = false
+
+
+    var textFeild1Colour = Color.Transparent
+    var textFeild2Colour = Color.Transparent
+    var textFeild3Colour = Color.Transparent
+
+    var textBox1value = ""
+    var textBox2value = ""
+    var textBox3value = ""
+
+    var result = "Wrong"
+
+    var refreshCounter = 0
+
+    var timesUp = false
+
+    var marks = 0
+
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
-
-
         super.onCreate(savedInstanceState)
+
+
         setContent {
+
+            isChecked = intent.getBooleanExtra("Timer",false)
+
+            if(!orientation){
+                randomProcess()
+            }
+
             FlagguessingandroidapplicationTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -72,9 +113,126 @@ class AdvanceLevel : ComponentActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("randomDrawableId1",randomDrawableId1)
+        outState.putInt("randomDrawableId2",randomDrawableId2)
+        outState.putInt("randomDrawableId3",randomDrawableId3)
+        outState.putBoolean("isChecked",isChecked)
+        outState.putBoolean("orientation", true)
+
+        outState.putInt("loseCount",loseCount)
+
+
+        outState.putString("textBox1value",textBox1value)
+        outState.putString("textBox2value",textBox2value)
+        outState.putString("textBox3value",textBox3value)
+
+
+        outState.putBoolean("submitedMain", submitedMain)
+
+
+        outState.putBoolean("isTextField1Enabled", isTextField1Enabled)
+        outState.putBoolean("isTextField2Enabled", isTextField2Enabled)
+        outState.putBoolean("isTextField3Enabled", isTextField3Enabled)
+
+
+
+        outState.putString("generatedImageName1",generatedImageName1)
+        outState.putString("generatedImageName2",generatedImageName2)
+        outState.putString("generatedImageName3",generatedImageName3)
+
+        outState.putLong("numCount",numCount)
+
+        outState.putInt("marks",marks)
+
+
+
+
+
+//        outState.putBoolean("orientation", true)
+//        outState.putBoolean("openBoxMain", openBoxMain)
+//        outState.putInt("refreshCounter",refreshCounter)
+//        outState.putBoolean("isPressedMain", isPressedMain)
+//        outState.putLong("numCount",numCount)
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        randomDrawableId1 = savedInstanceState.getInt("randomDrawableId1",0)
+        randomDrawableId2 = savedInstanceState.getInt("randomDrawableId2",0)
+        randomDrawableId3 = savedInstanceState.getInt("randomDrawableId3",0)
+
+        marks = savedInstanceState.getInt("marks",0)
+
+
+        generatedImageName1 = savedInstanceState.getString("generatedImageName1","")
+        generatedImageName2 = savedInstanceState.getString("generatedImageName2","")
+        generatedImageName3 = savedInstanceState.getString("generatedImageName3","")
+
+        isTextField1Enabled = savedInstanceState.getBoolean("isTextField1Enabled",true)
+        isTextField2Enabled = savedInstanceState.getBoolean("isTextField2Enabled",true)
+        isTextField3Enabled = savedInstanceState.getBoolean("isTextField3Enabled",true)
+
+        textBox1value = savedInstanceState.getString("textBox1value","")
+        textBox2value = savedInstanceState.getString("textBox2value","")
+        textBox3value = savedInstanceState.getString("textBox3value","")
+
+        loseCount = savedInstanceState.getInt("loseCount",0)
+
+
+        numCount = savedInstanceState.getLong("numCount",11000)
+
+
+
+        orientation = savedInstanceState.getBoolean("orientation",false)
+
+        submitedMain = savedInstanceState.getBoolean("submitedMain",false)
+
+
+
+
+
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AdvanceLevelScreenContent() {
+
+        var endGame by remember { mutableStateOf(false) }
+
+//        var textBox1ValueMain by remember { mutableStateOf("$textBox1value") }
+
+        var nums:Long by remember { mutableStateOf(10) }
+
+        var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
+
+        val cuntNum = object : CountDownTimer(numCount,1000){
+
+            override fun onTick(millisUntilFinished: Long) {
+                nums = millisUntilFinished/1000
+                setVeiw = "$nums"
+                numCount = nums*1000
+            }
+
+            override fun onFinish() {
+                setVeiw = "Finished"
+
+                if(!isTextField1Enabled && !isTextField2Enabled && !isTextField3Enabled){
+                    result == "Correct"
+                }else{
+                    result == "Wrong"
+                }
+
+                endGame = !endGame
+                timesUp = true
+
+                Log.i("","Finished")
+
+            }
+        }
 
 
         Column(
@@ -92,37 +250,565 @@ class AdvanceLevel : ComponentActivity() {
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
-                    RandomImage()
+//                    RandomImage()
+
+
+
+
+                    Log.i("","oooo1 ${generatedImageName1}")
+                    Log.i("","oooo2 ${generatedImageName2}")
+                    Log.i("","oooo3 ${generatedImageName3}")
+
+//                    var marks by remember { mutableStateOf(0) }
+
+
+                    var textBox1 by remember { mutableStateOf(textBox1value) }
+                    var textBox2 by remember { mutableStateOf(textBox2value) }
+                    var textBox3 by remember { mutableStateOf(textBox3value) }
+
+
+//                    var textFeild1Colour:Color
+//                    var textFeild2Colour:Color
+//                    var textFeild3Colour:Color
+
+                    var haveToRefresh by remember { mutableStateOf(false) }
+
+                    var submitted by remember { mutableStateOf(submitedMain) }
+
+
+//                    var refreshCounter by remember { mutableStateOf(0) }
+
+//                    var result by remember { mutableStateOf("") }
+
+                    val resultColor = if (result == "Wrong") {
+                        Color.Red
+                    } else{
+                        Color.Green
+                    }
+
+                    if(!submitted){
+                        textFeild1Colour = Color.Transparent
+                        textFeild2Colour = Color.Transparent
+                        textFeild3Colour = Color.Transparent
+
+                    }else{
+                        if(!isTextField1Enabled){
+                            textFeild1Colour = Color(165,214,167)
+                        }else{
+                            textFeild1Colour = Color(229,115,115)
+                        }
+
+                        if(!isTextField2Enabled){
+                            textFeild2Colour = Color(165,214,167)
+                        }else{
+                            textFeild2Colour = Color(229,115,115)
+                        }
+
+                        textFeild3Colour = if(!isTextField3Enabled){
+                            Color(165,214,167)
+                        }else{
+                            Color(229,115,115)
+                        }
+                    }
+
+                    TopAppBar(
+                        title = {
+                            Text(text = "Advance Level")
+                        },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = {
+                                    val NavigateGuessHint = Intent(this@AdvanceLevel,MainActivity::class.java)
+                                    startActivity(NavigateGuessHint)
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowBack,
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        actions = {
+
+                            if(isChecked == true){
+                                cuntNum.start()
+                                isChecked = false
+                            }
+
+
+                            Text(
+                                text = "$setVeiw  Score $marks",
+                                modifier = Modifier
+                                    .padding(end = 16.dp) // Adjust the padding as needed
+                            )
+                        },
+                    )
+
+                    Column {
+                        if(!endGame){
+                            Column(
+                                modifier = Modifier
+                                    .weight(9f)
+                                    .fillMaxWidth()
+
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .padding(horizontal = 10.dp)
+                                        .background(Color(236, 226, 208)),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+//                                .fillMaxSize()
+                                            .weight(1f)
+                                            .border(width = 2.dp, color = Color.Black)
+                                            .background(Color(17, 57, 70))
+                                            .padding(10.dp)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = randomDrawableId1),
+                                            contentDescription = "Country Flag",
+//                                contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(bottom = 10.dp)
+                                            .fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        OutlinedTextField(
+                                            modifier = Modifier
+                                                .padding(4.dp)
+                                                .background(textFeild1Colour)
+                                                .fillMaxWidth(),
+                                            value = textBox1,
+                                            onValueChange = {textBox1 = it},
+                                            enabled = isTextField1Enabled,
+                                            label = { Text("Enter guessing character here") },
+
+                                            )
+                                    }
+                                    textBox1value = textBox1
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .padding(horizontal = 10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+//                                .fillMaxSize()
+                                            .weight(1f)
+                                            .border(width = 2.dp, color = Color.Black)
+                                            .background(Color(17, 57, 70))
+                                            .padding(10.dp)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = randomDrawableId2),
+                                            contentDescription = "Country Flag",
+//                                contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        OutlinedTextField(
+                                            modifier = Modifier
+                                                .padding(4.dp)
+                                                .background(textFeild2Colour)
+                                                .fillMaxWidth(),
+                                            value = textBox2,
+                                            onValueChange = { textBox2 = it },
+                                            enabled = isTextField2Enabled,
+                                            label = { Text("Enter guessing character here") },
+                                        )
+                                    }
+                                    textBox2value = textBox2
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .padding(horizontal = 10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+//                                .fillMaxSize()
+                                            .weight(1f)
+                                            .border(width = 2.dp, color = Color.Black)
+                                            .background(Color(17, 57, 70))
+                                            .padding(10.dp)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = randomDrawableId3),
+                                            contentDescription = "Country Flag",
+//                                contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        OutlinedTextField(
+                                            modifier = Modifier
+                                                .padding(4.dp)
+                                                .background(textFeild3Colour)
+                                                .fillMaxWidth(),
+                                            value = textBox3,
+                                            onValueChange = { textBox3 = it },
+                                            enabled = isTextField3Enabled,
+                                            label = { Text("Enter guessing character here") },
+                                        )
+                                    }
+                                    textBox3value = textBox3
+                                }
+                            }
+                        }else{
+                            Column(
+                                modifier = Modifier
+                                    .weight(9f)
+                                    .fillMaxWidth()
+
+                            ){
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(2f)
+                                            .fillMaxWidth()
+                                            .border(
+                                                2.dp,
+                                                Color(17, 57, 70),
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .background(
+                                                Color(213, 185, 178),
+                                                shape = RoundedCornerShape(10.dp)
+                                            ),
+                                        contentAlignment = Alignment.Center,
+                                    ){
+                                        Text(text = result,color = resultColor,fontSize = 30.sp)
+                                    }
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(7f)
+                                            .fillMaxWidth()
+                                            .border(
+                                                2.dp,
+                                                Color(17, 57, 70),
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .background(
+                                                Color.White,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(0.5f)
+                                                .fillMaxHeight()
+                                                .fillMaxWidth()
+                                                .border(
+                                                    2.dp,
+                                                    Color(17, 57, 70),
+                                                    shape = RoundedCornerShape(10.dp)
+                                                )
+                                                .background(
+                                                    Color(213, 185, 178),
+                                                    shape = RoundedCornerShape(10.dp)
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ){
+                                            Text(
+                                                text = "Result",
+                                                color = Color(88, 44, 77),
+                                                fontSize = 20.sp,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                            )
+                                        }
+                                        if(isTextField3Enabled){
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f)
+                                                    .padding(horizontal = 10.dp)
+
+//                                        .background(Color.Red, shape = RoundedCornerShape(10.dp))
+                                            ){
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .fillMaxHeight(),
+                                                    verticalArrangement = Arrangement.SpaceEvenly
+                                                ){
+                                                    Text(
+                                                        text = "First flag",
+                                                        modifier = Modifier
+                                                            .background(Color(236, 226, 208))
+                                                            .padding(5.dp)
+                                                            .fillMaxWidth()
+                                                    )
+                                                    Divider(thickness = 1.dp, color = Color.Black)
+                                                    Text(text = "Your answer: ${textBox1}")
+                                                    Text(text = "Correct answer : ${generatedImageName1}")
+                                                }
+                                            }
+                                        }
+                                        if(isTextField2Enabled){
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f)
+                                                    .padding(horizontal = 10.dp)
+//                                        .background(Color.Blue, shape = RoundedCornerShape(10.dp))
+                                            ){
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .fillMaxHeight(),
+                                                    verticalArrangement = Arrangement.SpaceEvenly
+                                                ){
+                                                    Text(
+                                                        text = "Second flag",
+                                                        modifier = Modifier
+                                                            .background(Color(236, 226, 208))
+                                                            .padding(5.dp)
+                                                            .fillMaxWidth()
+                                                    )
+                                                    Divider(thickness = 1.dp, color = Color.Black)
+                                                    Text(text = "Your answer: ${textBox2}")
+                                                    Text(text = "Correct answer : ${generatedImageName2}")
+                                                }
+                                            }
+                                        }
+                                        if(isTextField3Enabled){
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f)
+                                                    .padding(horizontal = 10.dp)
+//                                        .background(Color.Green, shape = RoundedCornerShape(10.dp))
+                                            ){
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .fillMaxHeight(),
+                                                    verticalArrangement = Arrangement.SpaceEvenly
+                                                ){
+                                                    Text(
+                                                        text = "Third flag",
+                                                        modifier = Modifier
+                                                            .background(Color(236, 226, 208))
+                                                            .padding(5.dp)
+                                                            .fillMaxWidth()
+                                                    )
+                                                    Divider(thickness = 1.dp, color = Color.Black)
+                                                    Text(text = "Your answer: ${textBox3}")
+                                                    Text(text = "Correct answer : ${generatedImageName3}")
+                                                }
+                                            }
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                                .padding(horizontal = 10.dp)
+//                                    .background(Color.Gray, shape = RoundedCornerShape(10.dp))
+                                        ){
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .fillMaxHeight(),
+                                                verticalArrangement = Arrangement.SpaceEvenly
+                                            ){
+                                                Divider(thickness = 1.dp, color = Color.Black)
+                                                Text(
+                                                    text = "Score",
+                                                    modifier = Modifier
+                                                        .background(Color(236, 226, 208))
+                                                        .padding(5.dp)
+                                                        .fillMaxWidth()
+                                                )
+                                                Text(text = "$marks")
+//                                    Divider(thickness = 1.dp, color = Color.Black)
+                                            }
+                                        }
+
+
+
+                                    }
+                                }
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .weight(1f)
+                        ) {
+                            Button(
+                                onClick = {
+
+                                    if(!timesUp){
+                                        submitted = true
+                                        submitedMain = true
+
+                                        Log.i("","kk $textBox1")
+                                        Log.i("","new  ${textBox1value}")
+
+
+                                        Log.i("","new  ${textBox1value}")
+
+
+
+                                        marks = 0
+
+                                        if(textBox1.uppercase() == generatedImageName1){
+                                            Log.i("","First flag answer is correct")
+                                            marks++
+                                            isTextField1Enabled = false
+                                        }else{
+                                            Log.i("","First flag answer is wrong")
+                                        }
+
+                                        if(textBox2.uppercase() == generatedImageName2){
+                                            Log.i("","Second flag answer is correct")
+                                            marks++
+                                            isTextField2Enabled = false
+                                        }else{
+                                            Log.i("","Second flag answer is wrong")
+                                            textFeild2Colour = Color.Black
+                                        }
+
+                                        if(textBox3.uppercase() == generatedImageName3){
+                                            Log.i("","Third flag answer is correct")
+                                            marks++
+                                            isTextField3Enabled = false
+                                        }else{
+                                            Log.i("","Third flag answer is wrong")
+                                        }
+
+
+                                        Log.i("", "Marks $marks")
+
+
+
+                                        if(!isTextField1Enabled && !isTextField2Enabled && !isTextField3Enabled){
+                                            endGame = !endGame
+                                            result = "Correct"
+                                            refreshCounter++
+                                            submitted = false
+                                            isTextField1Enabled = true
+                                            isTextField2Enabled = true
+                                            isTextField3Enabled = true
+                                        }else{
+                                            loseCount++
+                                            if(loseCount >= 3){
+                                                endGame = !endGame
+                                                result = "Wrong"
+                                                refreshCounter++
+                                                submitted = false
+                                                isTextField1Enabled = true
+                                                isTextField2Enabled = true
+                                                isTextField3Enabled = true
+
+                                                cuntNum.cancel()
+                                            }
+                                        }
+                                    }else{
+                                        endGame = !endGame
+                                        loseCount = 0
+                                        refreshCounter = 2
+                                        Log.i("","refresher $refreshCounter")
+                                        timesUp = false
+                                    }
+
+                                },
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(20),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(88, 44, 77)
+                                )
+                            )
+                            {
+                                Text(text = if (endGame) "Next" else "Submit")
+                            }
+
+                            if(refreshCounter==2){
+
+
+                                setContent {
+                                    numCount = 11000
+
+                                    cuntNum.cancel()
+
+                                    isChecked = intent.getBooleanExtra("Timer",false)
+
+                                    submitted = false
+
+                                    submitedMain = false
+
+                                    loseCount = 0
+
+                                    refreshCounter = 0
+
+                                    orientation = false
+
+                                    textBox1value = ""
+                                    textBox2value = ""
+                                    textBox3value = ""
+
+                                    randomProcess()
+
+                                    FlagguessingandroidapplicationTheme {
+                                        // A surface container using the 'background' color from the theme
+                                        Surface(
+                                            modifier = Modifier.fillMaxSize(),
+                                            color = MaterialTheme.colorScheme.background
+                                        ) {
+                                            AdvanceLevelScreenContent()
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-
-    fun readJson(context: Context, countryMap: MutableMap<String, String>) {
-        // Read JSON from assets
-        try {
-            val json: String = context.assets.open("Countries.json").bufferedReader().use{it.readText() }
-
-            // Parse JSON using kotlinx.serialization
-            val countryDataList = Json.decodeFromString<Map<String, String>>(json)
-
-            // Update the countryMap
-            countryMap.putAll(countryDataList)
-        } catch (e: Exception) {
-            // Handle exceptions (e.g., JSON parsing errors)
-            // You may want to log the exception or show an error message
-            e.printStackTrace()
-        }
-    }
-
     @Composable
-    fun RandomImage() {
-
-
+    fun randomProcess(){
         val context = LocalContext.current
         val countryMap = remember { mutableMapOf<String, String>() }
-        readJson(context, countryMap)
+        reusable.readJson(context, countryMap)
 
         val drawableList = listOf(
 
@@ -384,10 +1070,10 @@ class AdvanceLevel : ComponentActivity() {
         )
 
 
+
         randomDrawableId1 = drawableList.random()
         randomDrawableId2 = drawableList.random()
         randomDrawableId3 = drawableList.random()
-
 
         // Get the name of the generated drawable resource using reflection
         val drawableName1: String = try {
@@ -411,515 +1097,16 @@ class AdvanceLevel : ComponentActivity() {
             "Unknown"
         }
 
-        var generatedImageKey1 = drawableName1.substring(11).uppercase()
+        generatedImageKey1 = drawableName1.substring(11).uppercase()
         generatedImageName1 = countryMap[generatedImageKey1.uppercase()].toString().uppercase()
 
-        var generatedImageKey2 = drawableName2.substring(11).uppercase()
+        generatedImageKey2 = drawableName2.substring(11).uppercase()
         generatedImageName2 = countryMap[generatedImageKey2.uppercase()].toString().uppercase()
 
-        var generatedImageKey3 = drawableName3.substring(11).uppercase()
+        generatedImageKey3 = drawableName3.substring(11).uppercase()
         generatedImageName3 = countryMap[generatedImageKey3.uppercase()].toString().uppercase()
-
-//        var textBox1 by remember { mutableStateOf("") }
-//        var textBox2 by remember { mutableStateOf("") }
-//        var textBox3 by remember { mutableStateOf("") }
-
-        Log.i("","oooo1 ${generatedImageName1}")
-        Log.i("","oooo2 ${generatedImageName2}")
-        Log.i("","oooo3 ${generatedImageName3}")
-
-
-        ttt()
-
-
-
-
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun ttt(){
-
-        var marks by remember { mutableStateOf(0) }
-
-        var isTextField1Enabled by remember { mutableStateOf(true) }
-        var isTextField2Enabled by remember { mutableStateOf(true) }
-        var isTextField3Enabled by remember { mutableStateOf(true) }
-
-        var submitted by remember { mutableStateOf(false) }
-
-        var endGame by remember { mutableStateOf(false) }
-
-
-        var textBox1 by remember { mutableStateOf("") }
-        var textBox2 by remember { mutableStateOf("") }
-        var textBox3 by remember { mutableStateOf("") }
-
-        var textFeild1Colour:Color
-        var textFeild2Colour:Color
-        var textFeild3Colour:Color
-
-        var haveToRefresh by remember { mutableStateOf(false) }
-
-        var refreshCounter by remember { mutableStateOf(0) }
-
-        var result by remember { mutableStateOf("") }
-
-        val resultColor = if (result == "Wrong") {
-            Color.Red
-        } else{
-            Color.Green
-        }
-
-        if(!submitted){
-            textFeild1Colour = Color.Transparent
-            textFeild2Colour = Color.Transparent
-            textFeild3Colour = Color.Transparent
-
-        }else{
-            if(!isTextField1Enabled){
-                textFeild1Colour = Color(165,214,167)
-            }else{
-                textFeild1Colour = Color(229,115,115)
-            }
-
-            textFeild2Colour = if(!isTextField2Enabled){
-                Color(165,214,167)
-            }else{
-                Color(229,115,115)
-            }
-
-            textFeild3Colour = if(!isTextField3Enabled){
-                Color(165,214,167)
-            }else{
-                Color(229,115,115)
-            }
-        }
-
-        TopAppBar(
-            title = {
-                Text(text = "Advance Level")
-            },
-            navigationIcon = {
-                IconButton(
-                    onClick = {
-                        val NavigateGuessHint = Intent(this@AdvanceLevel,MainActivity::class.java)
-                        startActivity(NavigateGuessHint)
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = null
-                    )
-                }
-            },
-            actions = {
-                Text(
-                    text = "Score $marks",
-                    modifier = Modifier
-                        .padding(end = 16.dp) // Adjust the padding as needed
-                        .clickable {
-                            // Add any click behavior if needed
-                        }
-                )
-            },
-        )
-
-        Column {
-            if(!endGame){
-                Column(
-                    modifier = Modifier
-                        .weight(9f)
-                        .fillMaxWidth()
-
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(horizontal = 10.dp)
-                            .background(Color(236, 226, 208)),
-                        horizontalAlignment = Alignment.CenterHorizontally
-
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-//                                .fillMaxSize()
-                                .weight(1f)
-                                .border(width = 2.dp, color = Color.Black)
-                                .background(Color(17, 57, 70))
-                                .padding(10.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = randomDrawableId1),
-                                contentDescription = "Country Flag",
-//                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .padding(bottom = 10.dp)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .background(textFeild1Colour)
-                                    .fillMaxWidth(),
-                                value = textBox1,
-                                onValueChange = {textBox1 = it},
-                                enabled = isTextField1Enabled,
-                                label = { Text("Enter guessing character here") },
-
-                                )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(horizontal = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-//                                .fillMaxSize()
-                                .weight(1f)
-                                .border(width = 2.dp, color = Color.Black)
-                                .background(Color(17, 57, 70))
-                                .padding(10.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = randomDrawableId2),
-                                contentDescription = "Country Flag",
-//                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .background(textFeild2Colour)
-                                    .fillMaxWidth(),
-                                value = textBox2,
-                                onValueChange = { textBox2 = it },
-                                enabled = isTextField2Enabled,
-                                label = { Text("Enter guessing character here") },
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(horizontal = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-//                                .fillMaxSize()
-                                .weight(1f)
-                                .border(width = 2.dp, color = Color.Black)
-                                .background(Color(17, 57, 70))
-                                .padding(10.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = randomDrawableId3),
-                                contentDescription = "Country Flag",
-//                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .background(textFeild3Colour)
-                                    .fillMaxWidth(),
-                                value = textBox3,
-                                onValueChange = { textBox3 = it },
-                                enabled = isTextField3Enabled,
-                                label = { Text("Enter guessing character here") },
-                            )
-                        }
-                    }
-                }
-            }else{
-                Column(
-                    modifier = Modifier
-                        .weight(9f)
-                        .fillMaxWidth()
-
-                ){
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(2f)
-                                .fillMaxWidth()
-                                .border(
-                                    2.dp,
-                                    Color(17, 57, 70),
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .background(Color(213, 185, 178), shape = RoundedCornerShape(10.dp)),
-                            contentAlignment = Alignment.Center,
-                        ){
-                            Text(text = result,color = resultColor,fontSize = 30.sp)
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Column(
-                            modifier = Modifier
-                                .weight(7f)
-                                .fillMaxWidth()
-                                .border(2.dp, Color(17, 57, 70), shape = RoundedCornerShape(10.dp))
-                                .background(Color.White, shape = RoundedCornerShape(10.dp))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .fillMaxHeight()
-                                    .fillMaxWidth()
-                                    .border(2.dp, Color(17, 57, 70), shape = RoundedCornerShape(10.dp))
-                                    .background(Color(213, 185, 178),shape = RoundedCornerShape(10.dp)),
-                                contentAlignment = Alignment.Center
-                            ){
-                                Text(
-                                    text = "Result",
-                                    color = Color(88, 44, 77),
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-                            }
-                            if(isTextField3Enabled){
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                        .padding(horizontal = 10.dp)
-
-//                                        .background(Color.Red, shape = RoundedCornerShape(10.dp))
-                                ){
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight(),
-                                        verticalArrangement = Arrangement.SpaceEvenly
-                                    ){
-                                        Text(
-                                            text = "First flag",
-                                            modifier = Modifier
-                                                .background(Color(236, 226, 208))
-                                                .padding(5.dp)
-                                                .fillMaxWidth()
-                                        )
-                                        Divider(thickness = 1.dp, color = Color.Black)
-                                        Text(text = "Your answer: ${textBox1}")
-                                        Text(text = "Correct answer : ${generatedImageName1}")
-                                    }
-                                }
-                            }
-                            if(isTextField2Enabled){
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                        .padding(horizontal = 10.dp)
-//                                        .background(Color.Blue, shape = RoundedCornerShape(10.dp))
-                                ){
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight(),
-                                        verticalArrangement = Arrangement.SpaceEvenly
-                                    ){
-                                        Text(
-                                            text = "Second flag",
-                                            modifier = Modifier
-                                                .background(Color(236, 226, 208))
-                                                .padding(5.dp)
-                                                .fillMaxWidth()
-                                        )
-                                        Divider(thickness = 1.dp, color = Color.Black)
-                                        Text(text = "Your answer: ${textBox2}")
-                                        Text(text = "Correct answer : ${generatedImageName2}")
-                                    }
-                                }
-                            }
-                            if(isTextField3Enabled){
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                        .padding(horizontal = 10.dp)
-//                                        .background(Color.Green, shape = RoundedCornerShape(10.dp))
-                                ){
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight(),
-                                        verticalArrangement = Arrangement.SpaceEvenly
-                                    ){
-                                        Text(
-                                            text = "Third flag",
-                                            modifier = Modifier
-                                                .background(Color(236, 226, 208))
-                                                .padding(5.dp)
-                                                .fillMaxWidth()
-                                        )
-                                        Divider(thickness = 1.dp, color = Color.Black)
-                                        Text(text = "Your answer: ${textBox3}")
-                                        Text(text = "Correct answer : ${generatedImageName3}")
-                                    }
-                                }
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .padding(horizontal = 10.dp)
-//                                    .background(Color.Gray, shape = RoundedCornerShape(10.dp))
-                            ){
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .fillMaxHeight(),
-                                    verticalArrangement = Arrangement.SpaceEvenly
-                                ){
-                                    Divider(thickness = 1.dp, color = Color.Black)
-                                    Text(
-                                        text = "Score",
-                                        modifier = Modifier
-                                            .background(Color(236, 226, 208))
-                                            .padding(5.dp)
-                                            .fillMaxWidth()
-                                    )
-                                    Text(text = "$marks")
-//                                    Divider(thickness = 1.dp, color = Color.Black)
-                                }
-                            }
-
-
-
-                        }
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .weight(1f)
-            ) {
-                Button(
-                    onClick = {
-                        submitted = true
-
-                        marks = 0
-
-                        if(textBox1.uppercase() == generatedImageName1){
-                            Log.i("","First flag answer is correct")
-                            marks++
-                            isTextField1Enabled = false
-                        }else{
-                            Log.i("","First flag answer is wrong")
-                        }
-
-                        if(textBox2.uppercase() == generatedImageName2){
-                            Log.i("","Second flag answer is correct")
-                            marks++
-                            isTextField2Enabled = false
-                        }else{
-                            Log.i("","Second flag answer is wrong")
-                        }
-
-                        if(textBox3.uppercase() == generatedImageName3){
-                            Log.i("","Third flag answer is correct")
-                            marks++
-                            isTextField3Enabled = false
-                        }else{
-                            Log.i("","Third flag answer is wrong")
-                        }
-
-
-                        Log.i("", "Marks $marks")
-
-
-
-                        if(!isTextField1Enabled && !isTextField2Enabled && !isTextField3Enabled){
-                            endGame = !endGame
-                            result = "Correct"
-                            refreshCounter++
-                            submitted = false
-                            isTextField1Enabled = true
-                            isTextField2Enabled = true
-                            isTextField3Enabled = true
-                        }else{
-                            loseCount++
-                            if(loseCount >= 3){
-                                endGame = !endGame
-                                result = "Wrong"
-                                refreshCounter++
-                                submitted = false
-                                isTextField1Enabled = true
-                                isTextField2Enabled = true
-                                isTextField3Enabled = true
-
-
-                            }
-                        }
-
-                    },
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(20),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(88, 44, 77)
-                    )
-                )
-                {
-                    Text(text = if (endGame) "Next" else "Submit")
-                }
-
-                if(refreshCounter==2){
-                    setContent {
-                        loseCount = 0
-                        refreshCounter = 0
-                        FlagguessingandroidapplicationTheme {
-                            // A surface container using the 'background' color from the theme
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = MaterialTheme.colorScheme.background
-                            ) {
-                                AdvanceLevelScreenContent()
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-    }
 
 }
 

@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
 
             Column(
                 modifier = Modifier
-//                    .background(Color.Yellow)
                     .fillMaxSize()
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -72,7 +71,7 @@ class MainActivity : ComponentActivity() {
                         .weight(1.5f),
                 ){
                     Image(
-                        painter = painterResource (id = R.drawable.background),
+                        painter = painterResource (id = R.drawable.bbbb),
                         contentDescription = "Background image",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.matchParentSize()
@@ -80,10 +79,7 @@ class MainActivity : ComponentActivity() {
 
                     Column(
                         modifier = Modifier
-//                            .weight(1.5f)
-//                            .background(Color.Blue)
                             .fillMaxHeight()
-//                            .background(Color.White)
                             .fillMaxWidth(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -94,11 +90,8 @@ class MainActivity : ComponentActivity() {
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
                             modifier = Modifier
-//                                .padding(10.dp)
-//                                .background(Color(12, 45, 72))
+                                .padding(bottom = 10.dp)
                                 .background(Color(236, 226, 208))
-
-//                                .background(Color.Black)
                                 .fillMaxWidth()
                         )
 
@@ -113,7 +106,6 @@ class MainActivity : ComponentActivity() {
                                 onCheckedChange = { newCheckedState ->
                                     isChecked = newCheckedState
                                     isCheckedMain = !isCheckedMain
-                                    // Handle the new state as needed
                                 },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
@@ -211,9 +203,11 @@ class MainActivity : ComponentActivity() {
                         }
                         Button(
                             onClick = {
-                                val NavigateGuessHint = Intent(this@MainActivity, AdvanceLevel::class.java)
-                                startActivity(NavigateGuessHint)
-                                      },
+                                val NavigateToGeussCountry = Intent(this@MainActivity,AdvanceLevel::class.java)
+                                NavigateToGeussCountry.putExtra("Timer",isChecked)
+                                startActivity(NavigateToGeussCountry)
+                            },
+
                             shape = RoundedCornerShape(20),
                             modifier = Modifier
                                 .weight(1f)
