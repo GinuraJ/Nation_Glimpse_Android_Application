@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,7 +72,7 @@ class MainActivity : ComponentActivity() {
                         .weight(1.5f),
                 ){
                     Image(
-                        painter = painterResource (id = R.drawable.bbbb),
+                        painter = painterResource (id = R.drawable.logo),
                         contentDescription = "Background image",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.matchParentSize()
@@ -83,23 +84,15 @@ class MainActivity : ComponentActivity() {
                             .fillMaxWidth(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
 
-                            text = "  \uD835\uDCDD\uD835\uDCEA\uD835\uDCFD\uD835\uDCF2\uD835\uDCF8\uD835\uDCF7 \n     \uD835\uDCD6\uD835\uDCF5\uD835\uDCF2\uD835\uDCF6\uD835\uDCF9\uD835\uDCFC\uD835\uDCEE",
-                            fontSize = 60.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            modifier = Modifier
-                                .padding(bottom = 10.dp)
-                                .background(Color(236, 226, 208))
-                                .fillMaxWidth()
-                        )
 
                         Row(
                             modifier = Modifier
                                 .padding(16.dp)
+                                .fillMaxHeight()
                                 .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.Bottom
                         ) {
                             Switch(
                                 checked = isChecked,
@@ -119,7 +112,7 @@ class MainActivity : ComponentActivity() {
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color(236, 226, 208))
+                        .background(Color(255, 204, 153))
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.Center
 
@@ -145,12 +138,19 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
 //                                containerColor = Color(17,190,121)
-                                containerColor = Color(213, 185, 178)
+                                containerColor = Color(255, 99, 99)
 
                             )
                         )
                         {
-                            Text(text = "Guess the country")
+                            Text(
+                                text = "Guess the country",
+                                color = Color(19, 56, 135),
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 30.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                         Button(
                             onClick = {
@@ -164,12 +164,19 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
 //                                containerColor = Color(136,225,241)
-                                containerColor = Color(191, 181, 192)
+                                containerColor = Color(158, 157, 157)
 
 
                             )
                         ) {
-                            Text(text = "Guess hint")
+                            Text(
+                                text = "Guess hint",
+                                color = Color(19, 56, 135),
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 30.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                     Row(
@@ -199,7 +206,14 @@ class MainActivity : ComponentActivity() {
                             )
 
                         ) {
-                            Text(text = "Guess the flag")
+                            Text(
+                                text = "Guess the flag",
+                                color = Color.Black,
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 30.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                         Button(
                             onClick = {
@@ -214,12 +228,18 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxHeight(0.7f),
                             colors = ButtonDefaults.buttonColors(
 //                                containerColor = Color(160, 32, 240)
-                                containerColor = Color(88, 44, 77)
+                                containerColor = Color(139, 93, 163)
 
                             )
 
                         ) {
-                            Text(text = "Advance level")
+                            Text(
+                                text = "Advance level",
+                                color = Color.Black,
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 30.sp,
+                                fontWeight = FontWeight.Bold)
                         }
                     }
                 }
