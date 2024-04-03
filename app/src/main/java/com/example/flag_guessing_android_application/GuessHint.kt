@@ -67,6 +67,7 @@ class GuessHint : ComponentActivity() {
     var refreshCounter = 0
     var numCount:Long = 11000
     var timeIsUp = false
+    var textFeild = ""
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +116,9 @@ class GuessHint : ComponentActivity() {
         outState.putLong("numCount",numCount)
         outState.putBoolean("timeIsUp", timeIsUp)
 
+        outState.putString("textFeild",textFeild)
+
+
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -134,6 +138,9 @@ class GuessHint : ComponentActivity() {
         numCount = savedInstanceState.getLong("numCount",11000)
         timeIsUp = savedInstanceState.getBoolean("timeIsUp",false)
 
+        textFeild = savedInstanceState.getString("textFeild","")
+
+
         val tempArray = savedInstanceState.getStringArray("mutableList")
         mutableList.clear()
         if (tempArray != null) {
@@ -148,13 +155,9 @@ class GuessHint : ComponentActivity() {
 
         var isPressed by remember {mutableStateOf(isPressedmain)}
 
-//        var loseOrWin = remember {mutableStateOf(false)}
-
         var loseOrWin = remember {mutableStateOf(looseOrWinMain)}
 
-        var text by remember {mutableStateOf("") }
-
-//        var refreshCounter by remember {mutableStateOf(0)}
+        var text by remember {mutableStateOf(textFeild) }
 
         var nums:Long by remember {mutableStateOf(10) }
 
@@ -334,6 +337,7 @@ class GuessHint : ComponentActivity() {
                                         onValueChange = { text = it },
                                         label = { Text("Enter guessing character here") },
                                     )
+                                    textFeild = text
                                 }
                             }else{
                                 var textColour = Color(174, 214, 241)
@@ -466,6 +470,8 @@ class GuessHint : ComponentActivity() {
                                     numCount = 11000
 
                                     timeIsUp = false
+
+                                    textFeild= ""
 
                                     setContent {
 

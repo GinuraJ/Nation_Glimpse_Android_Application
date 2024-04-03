@@ -205,6 +205,11 @@ class GuessTheFlag : ComponentActivity() {
                     verticalArrangement = Arrangement.Center
                 ){
 
+                    Log.i("","Flaag 1 : $generatedImageName1")
+                    Log.i("","Flaag 2 : $generatedImageName2")
+                    Log.i("","Flaag 3 : $generatedImageName3")
+
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

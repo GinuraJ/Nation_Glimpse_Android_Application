@@ -44,26 +44,27 @@ import kotlinx.serialization.json.Json
 
 class GuessCountry : ComponentActivity() {
 
+    // Import function that read json file function from Reusable class
     val reusable = Reusable()
-
+    // Variable for store generated image key
     var generatedImage = "ad"
-
+    // Variable for store generated image name
     var generatedImageName = ""
-
+    // Variable for store the user selected name
     var chosedAnswer = "Andorra"
-
+    // Variable that determine whether timer is on or not
     var isChecked = false
-
+    // Variable for store image ID which is going to generate
     var generatedImageID = 0
-
+    // Variable that determine screen rotated or not
     var orientation = false
-
+    // Variable for identify result box open or not
     var openBoxMain = false
-
+    // Variable for determine user pressed the button or not
     var isPressedMain = false
-
+    // Variable for identify current stated have to change or not
     var refreshCounter = 0
-    
+    // Variable that defines timer stating count
     var numCount:Long = 11000
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -72,10 +73,11 @@ class GuessCountry : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-
+            // Import the value from Main activity to identify timer is no or not
             isChecked = intent.getBooleanExtra("Timer",false)
-
+            // If orientation is false that means image is not generated
             if(!orientation){
+                // Generate random image and update image name and id
                 randomProcess()
             }
 
@@ -93,87 +95,106 @@ class GuessCountry : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        // Save the generatedImage current value
         outState.putString("generatedImage",generatedImage)
+        // Save the generatedImageName current value
         outState.putString("generatedImageName",generatedImageName)
+        // Save the chosedAnswer current value
         outState.putString("chosedAnswer",chosedAnswer)
+        // Save the isChecked current value
         outState.putBoolean("isChecked",isChecked)
+        // Save the generatedImageID current value
         outState.putInt("generatedImageID",generatedImageID)
+        // Save the orientation current value
         outState.putBoolean("orientation", true)
+        // Save the openBoxMain current value
         outState.putBoolean("openBoxMain", openBoxMain)
+        // Save the refreshCounter current value
         outState.putInt("refreshCounter",refreshCounter)
+        // Save the isPressedMain current value
         outState.putBoolean("isPressedMain", isPressedMain)
+        // Save the numCount current value
         outState.putLong("numCount",numCount)
-
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
+        // Restore generatedImage saved value
         generatedImage = savedInstanceState.getString("generatedImage","")
+        // Restore generatedImageName saved value
         generatedImageName = savedInstanceState.getString("generatedImageName","")
+        // Restore chosedAnswer saved value
         chosedAnswer = savedInstanceState.getString("chosedAnswer","")
+        // Restore isChecked saved value
         isChecked = savedInstanceState.getBoolean("isChecked",false)
+        // Restore generatedImageID saved value
         generatedImageID = savedInstanceState.getInt("generatedImageID",0)
+        // Restore orientation saved value
         orientation = savedInstanceState.getBoolean("orientation",false)
+        // Restore openBoxMain saved value
         openBoxMain = savedInstanceState.getBoolean("openBoxMain",false)
+        // Restore isPressedMain saved value
         isPressedMain = savedInstanceState.getBoolean("isPressedMain",false)
+        // Restore refreshCounter saved value
         refreshCounter = savedInstanceState.getInt("refreshCounter",refreshCounter)
+        // Restore numCount saved value
         numCount = savedInstanceState.getLong("numCount",11000)
-        
     }
+
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun GuessCountryScreenContent() {
-
+        // Variable for identify result box open or not
         val openDialog = remember { mutableStateOf(openBoxMain) }
-
+        //
         val context = LocalContext.current
-
+        // Create a map to store country key and values
         val countryMap = remember { mutableMapOf<String, String>() }
+        // Load json file data into map
         reusable.readJson(context, countryMap)
-
+        // Find the generated image name from the country map and convert it into uppercase
         generatedImageName = countryMap[generatedImage.uppercase()].toString()
-
+        Log.i("","Guess country name : $generatedImageName")
+        // Identify what button is pressed by the user in the lazy column
         var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
-
+        // Identify whether user pressed the submit button or not
         var isPressed by remember { mutableStateOf(isPressedMain) }
-
-        Log.i("","www $isChecked")
-
+        // Variable for maintain timer counter which is starting from 10
         var nums:Long by remember { mutableStateOf(10) }
-
+        // Variable for showing the countdown in navigation bar
         var setVeiw:String by remember { mutableStateOf("⏰ OFF") }
-
+        // Logic for timer
         val cuntNum = object : CountDownTimer(numCount,1000){
 
             override fun onTick(millisUntilFinished: Long) {
+                //
                 nums = millisUntilFinished/1000
+                // Update the setView variable to current count
                 setVeiw = "$nums"
+                // Convert numCount in to milliseconds
                 numCount = nums*1000
             }
 
             override fun onFinish() {
+                // When counter get zero update seView to "Finished"
                 setVeiw = "Finished"
 
                 if(isPressed){
                     isChecked = false
                 }else{
                     isPressed = !isPressed
+                    // Comparison between generated image and user selected image name
                     if(generatedImage == chosedAnswer){
-//                        if(isPressed){
-//                            Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
-//                        }
+                        // Open the result sheet
                         openDialog.value = !openDialog.value
                     }else if(generatedImage != chosedAnswer) {
-//                        if(isPressed){
-//                            Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
-//                        }
+                        // Open the result sheet
                         openDialog.value = !openDialog.value
                     }
-
+                    // Update the refreshCounter to notify that setContent should be set
                     refreshCounter++
                 }
-
-
             }
         }
 
@@ -183,15 +204,17 @@ class GuessCountry : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // TopAppBar for navigation
-
             TopAppBar(
                 title = {
+                    // Set the top bar time as a "Guess Country"
                     Text(text = "Guess Country")
                 },
                 navigationIcon = {
                     IconButton(
                         onClick = {
+                            // Navigate to MainActivity
                             val NavigateGuessHint = Intent(this@GuessCountry,MainActivity::class.java)
+                            // Notify the current value of isChecked variable
                             NavigateGuessHint.putExtra("Timer",isChecked)
                             startActivity(NavigateGuessHint)
                         },
@@ -204,6 +227,7 @@ class GuessCountry : ComponentActivity() {
                 },
                 actions = {
 
+                    // If Switch turn on, time should be started
                     if(isChecked == true){
                         cuntNum.start()
                         isChecked = false
@@ -223,9 +247,7 @@ class GuessCountry : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-//                    .background(Color(236, 226, 208))
                     .background(Color.White)
-
                     .padding(vertical = 8.dp)
             ) {
                 Column (
@@ -234,7 +256,9 @@ class GuessCountry : ComponentActivity() {
                         .weight(1f),
                     verticalArrangement = Arrangement.Center
                 ){
+                    // Set generated image
                     RandomImage()
+
                 }
                 Column (
                     modifier = Modifier
@@ -258,6 +282,7 @@ class GuessCountry : ComponentActivity() {
                                     Button(
 
                                         onClick = {
+
                                             chosedAnswer = key
 
                                             buttonStates = buttonStates.mapValues { (btnKey, _) ->
@@ -285,7 +310,6 @@ class GuessCountry : ComponentActivity() {
                                     .weight(5f)
                             ){
                                 val cornerSize = 10.dp
-
                                 var textColour: Color
                                 var boxColor = Color(174, 214, 241)
                                 var correctOrWrong:String
@@ -307,7 +331,6 @@ class GuessCountry : ComponentActivity() {
                                             modifier = Modifier
                                                 .fillMaxHeight(0.5f)
                                                 .fillMaxWidth()
-//                                    .height(400.dp)
                                                 .padding(10.dp)
                                                 .background(
                                                     Color(236, 226, 208),
@@ -412,193 +435,6 @@ class GuessCountry : ComponentActivity() {
             }
         }
     }
-
-//
-//    @Composable
-//    fun loadCountryList() {
-//
-//        val openDialog = remember { mutableStateOf(false) }
-//
-//        var refreshCounter by remember { mutableStateOf(0) }
-//
-//        val context = LocalContext.current
-//
-//        val countryMap = remember { mutableMapOf<String, String>() }
-//        readJson(context, countryMap)
-//
-//        generatedImageName = countryMap[generatedImage.uppercase()].toString()
-//
-//        var buttonStates by remember { mutableStateOf(countryMap.keys.associateWith { false }) }
-//
-//        var isPressed by remember { mutableStateOf(false) }
-//
-//        Column(
-//            modifier = Modifier
-//                .padding(horizontal = 8.dp)
-//        ) {
-//            if(!openDialog.value){
-//                LazyColumn(
-//                    modifier = Modifier
-//                        .weight(5f)
-//                        .padding(vertical = 8.dp)
-////                    .height(300.dp)
-//                ) {
-//                    items(countryMap.size) { index ->
-//                        val (key, value) = countryMap.entries.toList()[index]
-//
-//
-//                        Button(
-//
-//                            onClick = {
-//                                chosedAnswer = key
-//
-//                                buttonStates = buttonStates.mapValues { (btnKey, _) ->
-//                                    btnKey == key
-//                                }
-//                                Log.i("","kkk $chosedAnswer $generatedImage")
-//
-//
-//                            },
-//                            modifier = Modifier
-//                                .fillMaxWidth(),
-////                            .padding(8.dp),
-//                            shape = RoundedCornerShape(30),
-//                            colors = ButtonDefaults.buttonColors(
-//                                containerColor = if (buttonStates[key] == true) Color(26, 93, 26) else Color(17,190,121),
-//                            )
-////                            colors = ButtonDefaults.buttonColors(
-////                                containerColor = Color(26, 93, 26)
-////                            )
-//                        ) {
-//                            Text(text = value, color = Color.Black, fontSize = 20.sp)
-//                        }
-//                    }
-//                }
-//            }else{
-//                Box(
-//                    modifier = Modifier
-//                        .weight(5f)
-//                ){
-//                    val cornerSize = 10.dp
-//
-//                    var textColour: Color
-//                    var boxColor = Color(174, 214, 241)
-//                    var correctOrWrong:String
-//
-//                    if(generatedImage == chosedAnswer){
-//                        textColour = Color(0, 255, 0)
-//                        correctOrWrong = "Correct"
-//                    }else {
-//                        textColour = Color(255, 0, 0)
-//                        correctOrWrong = "Wrong"
-//                    }
-//
-//                    if(openDialog.value){
-//                        Popup(
-//                            alignment = Alignment.TopStart,
-//                            properties = PopupProperties()
-//                        ) {
-//                            Box(
-//                                modifier = Modifier
-//                                    .fillMaxHeight(0.5f)
-//                                    .fillMaxWidth()
-////                                    .height(400.dp)
-//                                    .padding(10.dp)
-//                                    .background(boxColor, RoundedCornerShape(cornerSize))
-//                                    .border(1.dp, Color.Black, RoundedCornerShape(cornerSize)),
-//                            ){
-//                                Column(
-//                                    horizontalAlignment = Alignment.CenterHorizontally,
-//                                    verticalArrangement = Arrangement.Center,
-//                                    modifier = Modifier.fillMaxSize()
-//                                ) {
-//                                    Text(
-//                                        text = "${correctOrWrong}",
-//                                        modifier = Modifier.padding(vertical = 10.dp),
-//                                        fontSize = 36.sp,
-//                                        color = textColour,
-//                                        fontWeight = FontWeight.Bold
-//                                    )
-//                                    Text(
-//                                        text = "${generatedImageName}",
-//                                        modifier = Modifier.padding(vertical = 10.dp),
-//                                        fontSize = 36.sp,
-//                                        color = Color(36, 113, 163),
-//                                    )
-//
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//
-//            Button(
-//                onClick = {
-//                    isPressed = !isPressed
-//                    if(generatedImage == chosedAnswer){
-//                        if(isPressed){
-//                            Toast.makeText(context,"🥳 Congrats",Toast.LENGTH_SHORT).show()
-//                        }
-//                        openDialog.value = !openDialog.value
-//                    }else if(generatedImage != chosedAnswer) {
-//                        if(isPressed){
-//                            Toast.makeText(context,"😪 Oops",Toast.LENGTH_SHORT).show()
-//                        }
-//                        openDialog.value = !openDialog.value
-//                    }
-//
-//                    refreshCounter++
-//                          },
-//                modifier = Modifier
-//                    .weight(1f)
-//                    .fillMaxWidth(),
-//                shape = RoundedCornerShape(20),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = Color(17, 57, 70)
-//                )
-//            )
-//            {
-//                Text(text = if (isPressed) "Next" else "Submit")
-//            }
-//
-//            if(refreshCounter > 1){
-//                setContent {
-//                    refreshCounter = 0
-//                    FlagguessingandroidapplicationTheme {
-//                        // A surface container using the 'background' color from the theme
-//                        Surface(
-//                            modifier = Modifier.fillMaxSize(),
-//                            color = MaterialTheme.colorScheme.background
-//                        ) {
-//                            GuessCountryScreenContent()
-//                        }
-//                    }
-//                }
-//            }
-//
-//        }
-//    }
-//
-
-//
-//    fun readJson(context: Context, countryMap: MutableMap<String, String>) {
-//        // Read JSON from assets
-//        try {
-//            val json: String = context.assets.open("Countries.json").bufferedReader().use{it.readText() }
-//
-//            // Parse JSON using kotlinx.serialization
-//            val countryDataList = Json.decodeFromString<Map<String, String>>(json)
-//
-//            // Update the countryMap
-//            countryMap.putAll(countryDataList)
-//        } catch (e: Exception) {
-//            // Handle exceptions (e.g., JSON parsing errors)
-//            // You may want to log the exception or show an error message
-//            e.printStackTrace()
-//        }
-//    }
 
     @Composable
     fun randomProcess(){
@@ -897,7 +733,6 @@ class GuessCountry : ComponentActivity() {
         ) {
             Image(
                 painter = painterResource(id = generatedImageID),
-//                painter = painterResource(id = resources.getIdentifier(testImage, "drawable", packageName)),
                 contentDescription = "Country Flag",
                 contentScale = ContentScale.Crop
             )
